@@ -2,127 +2,581 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LaserCalc — расчёт лазерной резки</title>
-<meta name="description" content="Предварительный расчёт стоимости лазерной резки по DXF.">
+<title>LaserCalc — стоимость лазерной резки</title>
+<meta name="description" content="Простой расчёт стоимости лазерной резки по DXF. Загрузите чертёж, укажите материал и получите предварительную оценку.">
 <style>
-:root{--bg:#0b0d13;--panel:#121621;--panel2:#171c29;--line:#272e3d;--text:#f4f6fb;--muted:#8f9ab0;--coral:#ff776f;--violet:#9b8cff;--green:#5bd6a1;--radius:16px}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% -10%,#22203a 0,transparent 40%),var(--bg);color:var(--text);font:15px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{min-height:100vh;display:grid;grid-template-columns:246px minmax(0,1fr)}aside{border-right:1px solid var(--line);padding:25px 16px;background:#0d1018;display:flex;flex-direction:column;gap:30px}.brand{display:flex;align-items:center;gap:11px;padding:0 10px;font-size:19px;font-weight:800;letter-spacing:-.6px}.logo{width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,var(--coral),var(--violet));display:grid;place-items:center;color:#11131b;font-weight:900}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:1.5px}.navlabel{font-size:10px;color:#626d82;font-weight:800;letter-spacing:1.6px;padding:0 12px;margin-bottom:8px}.nav{display:grid;gap:5px}.nav button{background:transparent;border:0;color:#a5afc1;text-align:left;border-radius:10px;padding:12px;display:flex;gap:12px;align-items:center}.nav button:hover,.nav button.active{background:#202337;color:white}.nav button.active{box-shadow:inset 3px 0 var(--coral)}.ni{width:19px;text-align:center;font-size:17px}.sidebottom{margin-top:auto}.plan-mini{border:1px solid var(--line);border-radius:14px;padding:15px;background:linear-gradient(140deg,#1c1a2d,#141925)}.plan-mini p{color:var(--muted);font-size:12px;margin:7px 0 13px}.main{min-width:0;padding:34px clamp(18px,4vw,56px) 60px;max-width:1600px;width:100%;margin:0 auto}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:32px}.crumb{color:var(--muted);font-size:12px}.profile{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.avatar{width:33px;height:33px;background:#252a3a;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700}.page{display:none}.page.active{display:block}.eyebrow{color:var(--coral);font-size:11px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase}.heading{font-size:clamp(27px,3vw,38px);letter-spacing:-1.4px;line-height:1.15;margin:8px 0 10px}.sub{color:var(--muted);max-width:760px;margin:0 0 27px}.grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(310px,.7fr);gap:20px;align-items:start}.stack{display:grid;gap:18px}.card{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(145deg,#151a26,#11151f);padding:22px;min-width:0}.cardhead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:17px}.card h2,.card h3{margin:0;font-size:16px;letter-spacing:-.3px}.muted{color:var(--muted)}.small{font-size:12px}.drop{border:1px dashed #4b5368;background:#0f131d;border-radius:13px;padding:30px 20px;text-align:center;transition:.2s}.drop.drag{border-color:var(--coral);background:#241b27}.dropicon{width:48px;height:48px;border-radius:14px;background:#252038;color:#b7aaff;display:grid;place-items:center;margin:0 auto 13px;font-size:24px}.drop strong{display:block;font-size:15px}.drop p{color:var(--muted);font-size:12px;margin:5px 0 17px}.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:750;font-size:13px;transition:transform .15s,opacity .15s}.btn:hover{transform:translateY(-1px)}.primary{background:linear-gradient(100deg,var(--coral),#ff9c7e);color:#1c1014}.secondary{background:#252b3a;color:#f3f4fa;border:1px solid #343b4d}.ghost{background:transparent;color:#bbc4d5;border:1px solid var(--line)}.wide{width:100%}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field label{display:block;color:#a9b2c3;font-size:12px;margin-bottom:7px}.field input,.field select{width:100%;background:#0c1018;border:1px solid #30384a;color:#f4f6fb;border-radius:9px;padding:11px 12px;outline:none;min-width:0}.field input:focus,.field select:focus{border-color:var(--violet)}.field .hint{font-size:10px;color:#727f95;margin-top:5px}.checkline{display:flex;align-items:center;gap:10px;font-size:12px;color:#c4cbda;margin-top:15px}.checkline input{accent-color:var(--coral);width:16px;height:16px}.summary{background:linear-gradient(145deg,#27223b,#171a29 70%);border-color:#45405e;position:relative;overflow:hidden}.summary:after{content:"";position:absolute;width:180px;height:180px;border:1px solid #7568a033;border-radius:50%;right:-90px;top:-95px;box-shadow:0 0 0 24px #7568a012,0 0 0 48px #7568a00a;pointer-events:none}.price-label{color:#c0b9e8;font-size:12px}.price{font-size:clamp(32px,3.5vw,43px);font-weight:850;letter-spacing:-1.6px;margin:5px 0 2px}.price span{font-size:16px;color:#b9b5d4;letter-spacing:0}.summary .small{color:#b5b2cc}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.stat{padding:13px;border:1px solid #ffffff14;background:#ffffff07;border-radius:11px}.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:#a7a5bd}.rule{height:1px;background:#ffffff16;margin:17px 0}.breakdown{display:grid;gap:12px}.breakrow{display:flex;justify-content:space-between;font-size:12px;color:#c7cadd}.breakrow b{color:white}.bar{height:5px;background:#292e40;border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--violet),var(--coral))}.notice{font-size:11px;line-height:1.5;color:#d3b88a;background:#29241d;border:1px solid #52432e;padding:12px;border-radius:10px;margin-top:17px}.status{display:inline-flex;gap:6px;align-items:center;background:#202b2b;color:#7fe1b5;border-radius:30px;padding:5px 9px;font-size:10px;font-weight:800}.status:before{content:"";width:6px;height:6px;background:currentColor;border-radius:50%}.empty{padding:35px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:570px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-size:12px}th{color:var(--muted);font-weight:600}td input,td select{width:100%;min-width:65px;padding:7px;background:#0b0e15;border:1px solid #30384a;color:white;border-radius:7px}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.plan{position:relative}.plan.featured{border-color:#8070db;box-shadow:0 0 0 1px #8070db33}.plan .tag{font-size:10px;background:#332c51;color:#c7baff;border-radius:5px;padding:5px 7px}.planprice{font-size:31px;font-weight:850;letter-spacing:-1px;margin:16px 0 2px}.planprice small{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:0}.plan ul{padding-left:18px;color:#bbc3d2;font-size:12px;line-height:2.2;min-height:135px}.pill{border:1px solid var(--line);border-radius:30px;padding:5px 9px;color:var(--muted);font-size:10px}.toast{position:fixed;bottom:22px;right:22px;z-index:5;background:#202838;border:1px solid #3b465c;color:white;padding:13px 17px;border-radius:12px;box-shadow:0 10px 35px #0008;display:none;max-width:340px}.toast.show{display:block;animation:pop .2s}@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}.modalback{display:none;position:fixed;inset:0;z-index:10;background:#05060bd9;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{max-width:450px;width:100%;border:1px solid #3c4358;background:#151a27;border-radius:18px;padding:25px}.modal h2{margin:0 0 8px}.modal p{color:var(--muted);font-size:13px}.modalactions{display:flex;gap:9px;margin-top:20px}.modalactions>*{flex:1}.footnote{color:#6f7b90;font-size:10px;margin-top:18px}.hidden{display:none!important}
-@media(max-width:1000px){.app{grid-template-columns:205px minmax(0,1fr)}.grid{grid-template-columns:1fr}.summary{order:-1}.plans{grid-template-columns:1fr 1fr}}@media(max-width:700px){.app{display:block}aside{padding:13px 14px;border-right:0;border-bottom:1px solid var(--line);gap:13px}.brand{padding:0 5px}.navlabel,.sidebottom{display:none}.nav{display:flex;overflow-x:auto;gap:5px}.nav button{white-space:nowrap;padding:9px 11px;font-size:12px}.ni{display:none}.main{padding:23px 14px 40px}.top{margin-bottom:25px}.profile .who{display:none}.card{padding:17px}.fields{grid-template-columns:1fr 1fr}.plans{grid-template-columns:1fr}.plan ul{min-height:0}.heading{font-size:29px}.stats{gap:8px}.stat{padding:10px}}@media(max-width:390px){.fields{grid-template-columns:1fr}.top{align-items:flex-start}}
+:root{--bg:#f6f7fb;--surface:#fff;--ink:#202431;--muted:#737b8c;--line:#e5e8ef;--accent:#6756e8;--accent-soft:#f0edff;--good:#16845b;--radius:18px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}header{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(22px,calc((100% - 1120px)/2))}.brand{display:flex;gap:10px;align-items:center;font-weight:750;font-size:19px;letter-spacing:-.5px}.mark{width:32px;height:32px;border-radius:10px;background:var(--accent);color:white;display:grid;place-items:center;font-weight:800}.header-note{font-size:13px;color:var(--muted)}main{max-width:960px;margin:38px auto;padding:0 20px 56px}.intro{margin-bottom:26px}.eyebrow{color:var(--accent);font-size:12px;font-weight:750;letter-spacing:1.2px;text-transform:uppercase}.intro h1{font-size:clamp(27px,4vw,38px);letter-spacing:-1.2px;line-height:1.15;margin:8px 0}.intro p{color:var(--muted);margin:10px 0 0;max-width:620px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:20px;align-items:start}.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 5px 20px #20243105}.section-title{font-size:16px;font-weight:750;margin:0 0 15px}.upload{min-height:145px;border:1.5px dashed #c9cce0;background:#fbfaff;border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;transition:.15s}.upload.drag{border-color:var(--accent);background:var(--accent-soft)}.upload-icon{width:38px;height:38px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0 auto 8px;font-size:21px}.upload strong{display:block}.upload small{display:block;color:var(--muted);margin-top:4px}.link-button{color:var(--accent);border:0;background:none;padding:0;font-weight:700}.file-status{font-size:13px;color:var(--muted);margin-top:10px;min-height:20px}.file-list{display:grid;gap:8px;margin-top:8px}.file-item{display:grid;grid-template-columns:minmax(0,1fr) 78px auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:12px}.file-item strong{display:block;overflow-wrap:anywhere;font-size:13px}.file-item small{color:var(--muted)}.file-item input{width:100%;height:34px;border:1px solid #dfe2ea;border-radius:8px;padding:0 7px}.file-remove{border:0;background:transparent;color:var(--muted);font-size:18px}.import-notice{margin-top:10px;border-radius:10px;background:#fff7e5;color:#77551a;padding:10px 12px;font-size:12px;line-height:1.5}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.field label{display:block;font-size:13px;font-weight:650;margin-bottom:6px}.field select,.field input{width:100%;height:43px;border:1px solid #dfe2ea;border-radius:10px;background:white;padding:0 11px;color:var(--ink);outline:none}.field select:focus,.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #6756e81a}.wide{grid-column:1/-1}.subtle{font-size:12px;color:var(--muted);margin-top:5px}.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;border-top:1px solid var(--line);margin-top:18px}.toggle-row strong{font-size:14px;display:block}.toggle-row small{color:var(--muted);font-size:12px}.switch{appearance:none;width:42px;height:24px;border-radius:99px;background:#d9dce5;position:relative;flex-shrink:0;cursor:pointer;transition:.15s}.switch:before{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;background:white;border-radius:50%;box-shadow:0 1px 3px #0002;transition:.15s}.switch:checked{background:var(--accent)}.switch:checked:before{left:21px}.primary{width:100%;height:48px;border:0;border-radius:12px;background:var(--accent);color:white;font-weight:750;margin-top:20px;box-shadow:0 4px 10px #6756e826}.primary:hover{background:#5846d6}.result{position:sticky;top:20px}.result-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}.pill{font-size:11px;font-weight:700;color:#8b6417;background:#fff5dc;border-radius:99px;padding:5px 8px}.price-label{color:var(--muted);font-size:13px}.price{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.2;margin:4px 0 5px}.result-caption{font-size:12px;color:var(--muted)}.rule{height:1px;background:var(--line);margin:19px 0}.metric{display:flex;justify-content:space-between;gap:12px;margin:11px 0;font-size:13px}.metric span:first-child{color:var(--muted)}.metric strong{font-weight:700;text-align:right}.result-empty{font-size:13px;color:var(--muted);margin-top:12px}.details{margin-top:12px}.details summary{font-size:13px;color:var(--accent);font-weight:700;cursor:pointer}.details .field{margin-top:13px}.notice{margin-top:16px;font-size:11px;color:var(--muted);line-height:1.55}.bottom-note{font-size:12px;color:var(--muted);text-align:center;margin:24px auto 0;max-width:700px}.hidden{display:none!important}footer{border-top:1px solid var(--line);padding:18px 20px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:760px){main{margin:26px auto;padding:0 14px 38px}.layout{grid-template-columns:1fr}.result{position:static;grid-row:1}.card{padding:18px}.price{font-size:34px}header{padding:0 16px}.header-note{display:none}}@media(max-width:420px){.fields{grid-template-columns:1fr}.wide{grid-column:auto}.intro h1{font-size:29px}}
 </style>
 </head>
 <body>
-<div class="app">
-<aside>
-<div class="brand"><div class="logo">LC</div><div>LaserCalc<small>LASER WORKFLOW</small></div></div>
-<div><div class="navlabel">РАБОЧЕЕ ПРОСТРАНСТВО</div><nav class="nav">
-<button class="active" data-page="calc"><span class="ni">⌁</span>Расчёт DXF</button>
-<button data-page="history"><span class="ni">◷</span>Мои расчёты</button>
-<button data-page="regimes"><span class="ni">≋</span>База режимов</button>
-<button data-page="billing"><span class="ni">◇</span>Тариф и оплата</button>
-<button data-page="settings"><span class="ni">⚙</span>Настройки</button>
-</nav></div>
-<div class="sidebottom"><div class="plan-mini"><span class="status">ТЕСТОВЫЙ РЕЖИМ</span><h3 style="margin:12px 0 0">Стартовый доступ</h3><p>Расчёты сохраняются в этом браузере. Оплата пока не подключена.</p><button class="btn secondary wide" data-goto="billing">Посмотреть тарифы</button></div><p class="footnote">LASERCALC · ПРЕДВАРИТЕЛЬНАЯ ВЕРСИЯ</p></div>
-</aside>
-<main class="main">
-<div class="top"><div class="crumb">Проект / <span id="crumb">Расчёт DXF</span></div><div class="profile"><div class="avatar">LC</div><span class="who">Локальный профиль · без входа</span></div></div>
-<section class="page active" id="page-calc">
-<div class="eyebrow">Расчёт производства</div><h1 class="heading">Расчёт стоимости резки</h1><p class="sub">Загрузите DXF, укажите материал и технологию. Получите предварительную оценку длины реза, пробивок, времени и себестоимости.</p>
-<div class="grid">
-<div class="stack">
-<div class="card"><div class="cardhead"><h2>01 / Файл раскроя</h2><span class="pill">DXF · до 20 МБ</span></div>
-<div class="drop" id="drop"><div class="dropicon">⇧</div><strong id="filetitle">Перетащите DXF-файл сюда</strong><p id="filedesc">Геометрия обрабатывается в вашем браузере</p><input type="file" id="file" accept=".dxf,application/dxf" class="hidden"><button class="btn secondary" id="choose">Выбрать DXF-файл</button><div class="small muted" id="fileinfo" style="margin-top:12px"></div></div>
-</div>
-<div class="card"><div class="cardhead"><h2>02 / Технология резки</h2><span class="pill">Параметры заказа</span></div>
+<header><div class="brand"><span class="mark">L</span>LaserCalc</div><div class="header-note">Простой расчёт стоимости резки</div></header>
+<main>
+<section class="intro"><div class="eyebrow">Расчёт по чертежу</div><h1>Сколько стоит резка?</h1><p>Загрузите DXF, выберите материал и толщину. LaserCalc оценит длину реза, время и предварительную стоимость.</p></section>
+<div class="layout">
+<section class="card">
+<h2 class="section-title">1. Чертёж</h2>
+<div class="upload" id="dropzone" role="button" tabindex="0" aria-label="Загрузить DXF-файл"><div><div class="upload-icon">↑</div><strong>Перетащите DXF сюда</strong><small>или <button type="button" class="link-button" id="browse">выберите файл</button> на компьютере</small></div></div>
+<input type="file" id="file" accept=".dxf,.lxd,.lxds" multiple hidden>
+<div class="file-status" id="fileStatus">DXF, LXD/LXDS, NRP/NRP2 или несколько DXF-файлов</div><div id="fileList" class="file-list"></div><div id="importNotice" class="import-notice hidden" role="status"></div>
 <div class="fields">
-<div class="field"><label for="material">Материал</label><select id="material"><option>Чёрная сталь</option><option>Нержавеющая сталь</option><option>Алюминий</option></select></div>
-<div class="field"><label for="thickness">Толщина, мм</label><select id="thickness"><option value="1">1 мм</option><option value="1.5">1,5 мм</option><option value="2">2 мм</option><option value="3" selected>3 мм</option><option value="4">4 мм</option><option value="5">5 мм</option><option value="6">6 мм</option><option value="8">8 мм</option><option value="10">10 мм</option><option value="12">12 мм</option><option value="16">16 мм</option><option value="20">20 мм</option></select></div>
+<div class="field"><label for="material">Материал</label><select id="material"><option value="steel">Чёрная сталь</option><option value="stainless">Нержавеющая сталь</option><option value="aluminum">Алюминий</option></select></div>
+<div class="field"><label for="thickness">Толщина, мм</label><select id="thickness"><option>1</option><option>1.5</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option><option>10</option><option>12</option><option>15</option><option>20</option></select></div>
 <div class="field"><label for="power">Мощность лазера</label><select id="power"><option value="1500">1,5 кВт</option><option value="2000">2 кВт</option><option value="3000" selected>3 кВт</option><option value="6000">6 кВт</option><option value="12000">12 кВт</option></select></div>
-<div class="field"><label for="gas">Вспомогательный газ</label><select id="gas"><option>Кислород</option><option>Азот</option><option>Воздух</option></select></div>
-<div class="field"><label for="speed">Скорость резки, мм/мин</label><input id="speed" type="number" min="1" value="2500"></div>
-<div class="field"><label for="pierce">Время пробивки, сек</label><input id="pierce" type="number" min="0" step=".1" value="1.8"></div>
-<div class="field"><label for="travel">Холостые перемещения, мм/мин</label><input id="travel" type="number" min="1" value="18000"></div>
-<div class="field"><label for="rate">Ставка станка, ₽/час</label><input id="rate" type="number" min="0" value="4500"></div>
-<div class="field"><label for="sheet">Стоимость листа, ₽</label><input id="sheet" type="number" min="0" value="6500"></div>
-<div class="field"><label for="markup">Накладные расходы, %</label><input id="markup" type="number" min="0" value="15"></div>
+<div class="field"><label for="gas">Вспомогательный газ</label><select id="gas"><option value="oxygen">Кислород</option><option value="nitrogen">Азот</option><option value="air">Воздух</option></select></div>
 </div>
-<label class="checkline"><input id="includeMaterial" type="checkbox" checked> Включить стоимость материала в расчёт</label>
-<label class="checkline"><input id="autoSpeed" type="checkbox"> Подставлять скорость из моей базы режимов</label>
-<div class="rule"></div><button class="btn primary wide" id="calculate">Рассчитать стоимость <span>→</span></button>
-</div>
-</div>
-<div class="stack">
-<div class="card summary"><div class="cardhead"><h2>Итоговая оценка</h2><span class="pill">Черновик</span></div><div class="price-label">Предварительная стоимость заказа</div><div class="price" id="totalPrice">— <span>₽</span></div><div class="small">Без учёта дополнительных операций и налогов</div>
-<div class="stats"><div class="stat"><b id="lengthStat">—</b><span>Длина реза, м</span></div><div class="stat"><b id="pierceStat">—</b><span>Потенциальных пробивок</span></div><div class="stat"><b id="timeStat">—</b><span>Время, мин</span></div><div class="stat"><b id="costStat">—</b><span>Работа станка, ₽</span></div></div>
-<div class="rule"></div><div class="breakdown"><div class="breakrow"><span>Чистое время резки</span><b id="cutTime">—</b></div><div class="bar"><i id="cutBar" style="width:45%"></i></div><div class="breakrow"><span>Пробивки и перемещения</span><b id="auxTime">—</b></div><div class="bar"><i id="auxBar" style="width:20%"></i></div><div class="breakrow"><span>Материал</span><b id="materialCost">—</b></div><div class="breakrow"><span>Накладные расходы</span><b id="overheadCost">—</b></div></div>
-<div class="notice">Предварительный расчёт. Точность зависит от единиц DXF, стратегии пробивки, траектории головы, ускорений и реальных режимов станка. Значения необходимо откалибровать по производственным данным.</div>
-</div>
-<div class="card"><div class="cardhead"><h3>Как считается время</h3><span class="pill">Модель v0.1</span></div><p class="muted small">Длина реза ÷ заданная скорость + оценка пробивок + приближённое время холостых перемещений. Реальная CAM-траектория пока не моделируется.</p><button class="btn ghost wide" data-goto="regimes">Настроить базу режимов</button></div>
-</div>
-</div>
+<div class="toggle-row"><div><strong>Добавить стоимость материала</strong><small>Учитывать стоимость листа в расчёте</small></div><input class="switch" type="checkbox" id="includeMaterial"></div>
+<div class="field hidden" id="sheetField"><label for="sheetCost">Стоимость материала на деталь, ₽</label><input id="sheetCost" type="number" min="0" step="10" value="0"><div class="subtle">Введите рассчитанную вами долю стоимости листа.</div></div>
+<details class="details"><summary>Дополнительные настройки цены</summary>
+<div class="field"><label for="hourly">Стоимость машино-часа, ₽</label><input id="hourly" type="number" min="0" step="100" value="6000"></div>
+<div class="field"><label for="markup">Накладные расходы и наценка, %</label><input id="markup" type="number" min="0" max="500" step="5" value="20"></div>
+<div class="field"><label for="pierce">Время одной пробивки, сек</label><input id="pierce" type="number" min="0" step="0.1" value="0.7"></div>
+<div class="subtle">Это предварительные параметры. Перед производственным применением проверьте режимы на своём станке.</div>
+</details>
+<button class="primary" id="calculate" type="button">Рассчитать стоимость</button>
 </section>
-<section class="page" id="page-history"><div class="eyebrow">Ваши данные</div><h1 class="heading">Мои расчёты</h1><p class="sub">История хранится локально в этом браузере. Пока без синхронизации между устройствами.</p><div class="card"><div class="sectionhead"><h2>Сохранённые расчёты</h2><button class="btn ghost" id="clearHistory">Очистить историю</button></div><div id="historyList" class="empty">Здесь появятся ваши расчёты после нажатия «Сохранить расчёт».</div></div></section>
-<section class="page" id="page-regimes"><div class="eyebrow">Технологическая база</div><h1 class="heading">База режимов резки</h1><p class="sub">Настраиваемая таблица скоростей для сочетаний материала, толщины, мощности и газа. Пока сохраняется только в этом браузере; демонстрационные значения не являются производственными рекомендациями.</p><div class="card"><div class="sectionhead"><div><h2>Пользовательские режимы</h2><div class="small muted" style="margin-top:4px">Редактируйте значения и сохраняйте изменения.</div></div><button class="btn primary" id="addRegime">＋ Добавить режим</button></div><div class="tablewrap"><table><thead><tr><th>Материал</th><th>Толщина, мм</th><th>Мощность, Вт</th><th>Газ</th><th>Скорость, мм/мин</th><th>Пробивка, сек</th><th></th></tr></thead><tbody id="regimeRows"></tbody></table></div><div style="display:flex;gap:10px;margin-top:17px;flex-wrap:wrap"><button class="btn primary" id="saveRegimes">Сохранить базу</button><button class="btn secondary" id="exportRegimes">Экспорт JSON</button><label class="btn ghost" for="importRegimes">Импорт JSON<input id="importRegimes" type="file" accept=".json,application/json" class="hidden"></label></div><p class="footnote">Стартовые строки — только заглушки для проверки интерфейса. Заменим их режимами из твоего станка и базы производителя.</p></div></section>
-<section class="page" id="page-billing"><div class="eyebrow">Доступ к сервису</div><h1 class="heading">Выберите тариф</h1><p class="sub">Макет будущей подписки. Кнопки показывают пользовательский сценарий, но настоящая оплата, выдача доступа и автопродление ещё не подключены.</p><div class="plans">
-<div class="card plan"><div class="cardhead"><h2>Старт</h2><span class="pill">Для знакомства</span></div><div class="planprice">0 ₽ <small>/ навсегда</small></div><p class="muted small">Попробовать основные функции</p><ul><li>До 3 расчётов в день</li><li>Базовые параметры резки</li><li>История на устройстве</li></ul><button class="btn secondary wide" data-plan="Старт">Текущий тариф</button></div>
-<div class="card plan featured"><div class="cardhead"><h2>Профессиональный</h2><span class="tag">ПОПУЛЯРНЫЙ</span></div><div class="planprice">990 ₽ <small>/ месяц</small></div><p class="muted small">Для мастеров и небольших производств</p><ul><li>Неограниченные расчёты</li><li>Своя база режимов</li><li>Сохранение и экспорт смет</li><li>Несколько станков и профилей</li></ul><button class="btn primary wide" data-plan="Профессиональный">Выбрать тариф</button></div>
-<div class="card plan"><div class="cardhead"><h2>Цех</h2><span class="pill">Для команды</span></div><div class="planprice">2 990 ₽ <small>/ месяц</small></div><p class="muted small">Общий доступ для производства</p><ul><li>Всё из тарифа Pro</li><li>Несколько сотрудников</li><li>Общая база технологий</li><li>Отчёты и история команды</li></ul><button class="btn secondary wide" data-plan="Цех">Выбрать тариф</button></div>
-</div><div class="card" style="margin-top:18px"><h3>Как будет оформляться подписка</h3><p class="muted small">1. Вы выбираете тариф → 2. Входите в аккаунт → 3. Оплачиваете через подключённый платёжный сервис → 4. Сервис получает подтверждение платежа и открывает функции тарифа. Сейчас это только демонстрация: деньги не списываются.</p></div></section>
-<section class="page" id="page-settings"><div class="eyebrow">Рабочая среда</div><h1 class="heading">Настройки</h1><p class="sub">Параметры тестовой версии.</p><div class="card stack"><div><h2>Единицы измерения</h2><p class="muted small">В текущем прототипе геометрия DXF трактуется как миллиметры. Автоопределение единиц будет добавлено позже.</p></div><div class="rule"></div><div><h2>Данные браузера</h2><p class="muted small">Расчёты и база режимов сохраняются локально на этом устройстве.</p><button class="btn ghost" id="resetLocal">Сбросить локальные данные</button></div><div class="rule"></div><div><h2>О сервисе</h2><p class="muted small">LaserCalc — предварительный инструмент оценки стоимости лазерной резки по DXF. Это не CAM-система и не заменяет проверку технологом.</p></div></div></section>
-</main></div>
-<div class="toast" id="toast"></div>
-<div class="modalback" id="modal"><div class="modal"><h2 id="modalTitle">Тариф</h2><p id="modalText"></p><div class="modalactions"><button class="btn secondary" id="modalClose">Вернуться</button><button class="btn primary" id="modalOk">Понятно</button></div></div></div>
+<aside class="card result">
+<div class="result-head"><h2 class="section-title" style="margin:0">Результат</h2><span class="pill">Предварительно</span></div>
+<div class="price-label">Ориентировочная стоимость</div><div class="price" id="price">— ₽</div><div class="result-caption" id="resultCaption">Загрузите DXF и нажмите «Рассчитать стоимость»</div>
+<div class="rule"></div>
+<div class="metric"><span>Длина реза</span><strong id="length">—</strong></div>
+<div class="metric"><span>Оценка пробивок*</span><strong id="pierces">—</strong></div>
+<div class="metric"><span>Время резки</span><strong id="time">—</strong></div>
+<div class="metric"><span>Стоимость работы</span><strong id="workCost">—</strong></div>
+<div class="metric" id="materialRow"><span>Материал</span><strong id="materialPrice">—</strong></div>
+<div class="metric"><span>Ставка станка</span><strong id="hourlyDisplay">6 000 ₽/ч</strong></div>
+<div class="notice">* Количество пробивок оценивается приблизительно по числу элементов DXF. Фактическая траектория, врезки, общие резы и порядок обработки зависят от CAM-программы. Не используйте оценку как подтверждённый производственный норматив без проверки.</div>
+</aside>
+</div>
+<p class="bottom-note">Чертёж обрабатывается в браузере на этом прототипе. Файл не отправляется на сервер. Стартовая база режимов подключена для отдельных комбинаций 3 кВт. Для остальных комбинаций используется грубая оценочная формула; значения требуют проверки на станке.</p>
+</main><footer>LaserCalc · Калькулятор стоимости лазерной резки</footer>
 <script>
-const $=id=>document.getElementById(id);
-let geometry={length:0,entities:0,closed:0,filename:"",loaded:false};
-let lastResult=null;
-const defaultRegimes=[
-{material:"Чёрная сталь",thickness:1,power:3000,gas:"Кислород",speed:7000,pierce:0.7},
-{material:"Чёрная сталь",thickness:3,power:3000,gas:"Кислород",speed:2500,pierce:1.8},
-{material:"Чёрная сталь",thickness:6,power:3000,gas:"Кислород",speed:1000,pierce:3.5},
-{material:"Нержавеющая сталь",thickness:1,power:3000,gas:"Азот",speed:12000,pierce:0.6},
-{material:"Нержавеющая сталь",thickness:3,power:3000,gas:"Азот",speed:5000,pierce:1.4},
-{material:"Алюминий",thickness:2,power:3000,gas:"Азот",speed:7000,pierce:1}
-];
-let regimes=JSON.parse(localStorage.getItem("lc_regimes")||"null")||defaultRegimes;
-let history=JSON.parse(localStorage.getItem("lc_history")||"[]");
-function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3000)}
-function page(name){document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===name));$("crumb").textContent=({calc:"Расчёт DXF",history:"Мои расчёты",regimes:"База режимов",billing:"Тариф и оплата",settings:"Настройки"})[name];if(name==="history")renderHistory();if(name==="regimes")renderRegimes();window.scrollTo({top:0,behavior:"smooth"})}
-document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>page(b.dataset.page));document.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>page(b.dataset.goto));
-function parseDXF(text){let lines=text.replace(/\r/g,"").split("\n").map(s=>s.trim()),pairs=[];for(let i=0;i+1<lines.length;i+=2){let c=Number(lines[i]);if(Number.isFinite(c))pairs.push([c,lines[i+1]])}
-let length=0,entities=0,closed=0,pierces=0,pts=[];const num=(a,c)=>{let p=a.find(x=>x[0]===c);return p?Number(p[1]):0};
-for(let i=0;i<pairs.length;){if(pairs[i][0]!==0){i++;continue}let type=pairs[i][1].toUpperCase(),j=i+1;while(j<pairs.length&&pairs[j][0]!==0)j++;let a=pairs.slice(i+1,j);
-if(type==="LINE"){let dx=num(a,11)-num(a,10),dy=num(a,21)-num(a,20);length+=Math.hypot(dx,dy);entities++;pierces++;pts.push([num(a,10),num(a,20),num(a,11),num(a,21)])}
-else if(type==="CIRCLE"){let r=num(a,40);if(r>0){length+=2*Math.PI*r;entities++;closed++;pierces++}}
-else if(type==="ARC"){let r=num(a,40),start=num(a,50),end=num(a,51),delta=(end-start+360)%360;length+=Math.PI*2*r*delta/360;entities++;pierces++}
-else if(type==="LWPOLYLINE"){let vertices=[];for(let k=0;k<a.length;k++){if(a[k][0]===10){let x=Number(a[k][1]),y=0;for(let z=k+1;z<a.length;z++){if(a[z][0]===20){y=Number(a[z][1]);break}if(a[z][0]===10||a[z][0]===0)break}vertices.push([x,y])}}if(vertices.length>1){for(let k=1;k<vertices.length;k++)length+=Math.hypot(vertices[k][0]-vertices[k-1][0],vertices[k][1]-vertices[k-1][1]);let flag=num(a,70),isClosed=!!(flag&1);if(isClosed){length+=Math.hypot(vertices[0][0]-vertices.at(-1)[0],vertices[0][1]-vertices.at(-1)[1]);closed++}entities++;pierces++}}
-else if(type==="POLYLINE"){let vertices=[],k=j;while(k<pairs.length&&!(pairs[k][0]===0&&pairs[k][1].toUpperCase()==="SEQEND")){if(pairs[k][0]===0&&pairs[k][1].toUpperCase()==="VERTEX"){let v=pairs.slice(k+1,pairs.findIndex((p,z)=>z>k&&p[0]===0));vertices.push([num(v,10),num(v,20)])}k++}if(vertices.length>1){for(let z=1;z<vertices.length;z++)length+=Math.hypot(vertices[z][0]-vertices[z-1][0],vertices[z][1]-vertices[z-1][1]);entities++;pierces++}}
-i=j}
-if(!entities)throw Error("Не удалось найти поддерживаемые объекты. Проверьте, что это DXF с LINE, ARC, CIRCLE или POLYLINE.");
-return {length,entities,closed,pierces}}
-function loadFile(file){if(!file)return;if(!file.name.toLowerCase().endsWith(".dxf")){toast("Выбери файл с расширением .dxf");return}if(file.size>20*1024*1024){toast("Файл больше 20 МБ");return}let reader=new FileReader();reader.onload=()=>{try{let g=parseDXF(reader.result);geometry={...g,filename:file.name,loaded:true};$("filetitle").textContent=file.name;$("filedesc").textContent="Файл прочитан · геометрия загружена";$("fileinfo").textContent=g.entities+" объектов · "+(g.length/1000).toFixed(2)+" м суммарной длины";toast("DXF прочитан. Проверьте параметры и рассчитайте стоимость.");calculate(false)}catch(e){geometry={length:0,entities:0,closed:0,filename:file.name,loaded:false};$("filetitle").textContent=file.name;$("filedesc").textContent="Не удалось прочитать геометрию";$("fileinfo").textContent=e.message;toast(e.message)}};reader.readAsText(file)}
-$("choose").onclick=()=>$("file").click();$("file").onchange=e=>loadFile(e.target.files[0]);const drop=$("drop");drop.ondragover=e=>{e.preventDefault();drop.classList.add("drag")};drop.ondragleave=()=>drop.classList.remove("drag");drop.ondrop=e=>{e.preventDefault();drop.classList.remove("drag");loadFile(e.dataTransfer.files[0])};
-function useRegime(){let r=regimes.find(r=>r.material===$("material").value&&Number(r.thickness)===Number($("thickness").value)&&Number(r.power)===Number($("power").value)&&r.gas===$("gas").value);if(r){$("speed").value=r.speed;$("pierce").value=r.pierce;return true}return false}
-$("autoSpeed").onchange=()=>{if($("autoSpeed").checked){if(!useRegime())toast("Для этого сочетания нет режима. Добавьте его в базу.");else toast("Скорость и пробивка подставлены из базы.")}};
-["material","thickness","power","gas"].forEach(id=>$(id).onchange=()=>{if($("autoSpeed").checked)useRegime()});
-function fmt(n,d=1){return Number(n).toLocaleString("ru-RU",{maximumFractionDigits:d,minimumFractionDigits:0})}function rub(n){return Math.round(n).toLocaleString("ru-RU")+" ₽"}
-function calculate(save=true){if($("autoSpeed").checked)useRegime();let speed=Math.max(1,Number($("speed").value)||1),pierce=Math.max(0,Number($("pierce").value)||0),travel=Math.max(1,Number($("travel").value)||1),rate=Math.max(0,Number($("rate").value)||0),sheet=Math.max(0,Number($("sheet").value)||0),markup=Math.max(0,Number($("markup").value)||0);let len=geometry.length||0,cut=len/speed,pi=geometry.pierces||0,aux=pi*pierce/60;let travelDist=geometry.loaded?Math.sqrt(len*len*.035):0,travelMin=travelDist/travel;let totalMin=cut+aux+travelMin;let machine=totalMin/60*rate,mat=$("includeMaterial").checked?sheet:0,overhead=(machine+mat)*markup/100,total=machine+mat+overhead;
-$("totalPrice").innerHTML=rub(total)+' <span>₽</span>';$("lengthStat").textContent=fmt(len/1000,2);$("pierceStat").textContent=geometry.loaded?fmt(pi,0):"—";$("timeStat").textContent=geometry.loaded?fmt(totalMin,1):"—";$("costStat").textContent=rub(machine);$("cutTime").textContent=geometry.loaded?fmt(cut,1)+" мин":"—";$("auxTime").textContent=geometry.loaded?fmt(aux+travelMin,1)+" мин":"—";$("materialCost").textContent=rub(mat);$("overheadCost").textContent=rub(overhead);let denom=cut+aux+travelMin||1;$("cutBar").style.width=(cut/denom*100)+"%";$("auxBar").style.width=((aux+travelMin)/denom*100)+"%";
-lastResult={date:new Date().toISOString(),filename:geometry.filename||"Без DXF",material:$("material").value,thickness:$("thickness").value,power:$("power").value,gas:$("gas").value,length:len,entities:geometry.entities,pierces:pi,time:totalMin,machine,mat,overhead,total};
-if(save&&geometry.loaded){history.unshift(lastResult);history=history.slice(0,100);localStorage.setItem("lc_history",JSON.stringify(history));toast("Расчёт сохранён в истории.")}else if(!geometry.loaded){toast("Сначала загрузи DXF. Пока показана оценка без геометрии.")}}
-$("calculate").onclick=()=>calculate(true);
-function renderHistory(){if(!history.length){$("historyList").className="empty";$("historyList").textContent="Здесь появятся ваши расчёты после нажатия «Рассчитать стоимость».";return}$("historyList").className="tablewrap";$("historyList").innerHTML='<table><thead><tr><th>Дата</th><th>Файл</th><th>Материал</th><th>Длина, м</th><th>Время, мин</th><th>Стоимость</th></tr></thead><tbody>'+history.map((h,i)=>'<tr><td>'+new Date(h.date).toLocaleString("ru-RU")+'</td><td>'+esc(h.filename)+'</td><td>'+esc(h.material)+' '+esc(h.thickness)+' мм</td><td>'+fmt(h.length/1000,2)+'</td><td>'+fmt(h.time,1)+'</td><td><b>'+rub(h.total)+'</b></td></tr>').join("")+'</tbody></table>'}
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function renderRegimes(){$("regimeRows").innerHTML=regimes.map((r,i)=>'<tr><td><select data-r="material" data-i="'+i+'"><option '+(r.material==="Чёрная сталь"?"selected":"")+'>Чёрная сталь</option><option '+(r.material==="Нержавеющая сталь"?"selected":"")+'>Нержавеющая сталь</option><option '+(r.material==="Алюминий"?"selected":"")+'>Алюминий</option></select></td><td><input type="number" min=".1" step=".1" data-r="thickness" data-i="'+i+'" value="'+esc(r.thickness)+'"></td><td><input type="number" min="1" data-r="power" data-i="'+i+'" value="'+esc(r.power)+'"></td><td><select data-r="gas" data-i="'+i+'"><option '+(r.gas==="Кислород"?"selected":"")+'>Кислород</option><option '+(r.gas==="Азот"?"selected":"")+'>Азот</option><option '+(r.gas==="Воздух"?"selected":"")+'>Воздух</option></select></td><td><input type="number" min="1" data-r="speed" data-i="'+i+'" value="'+esc(r.speed)+'"></td><td><input type="number" min="0" step=".1" data-r="pierce" data-i="'+i+'" value="'+esc(r.pierce)+'"></td><td><button class="btn ghost" data-del="'+i+'">Удалить</button></td></tr>').join("");$("regimeRows").querySelectorAll("[data-r]").forEach(el=>el.onchange=()=>{regimes[el.dataset.i][el.dataset.r]=el.dataset.r==="material"||el.dataset.r==="gas"?el.value:Number(el.value)});$("regimeRows").querySelectorAll("[data-del]").forEach(el=>el.onclick=()=>{regimes.splice(Number(el.dataset.del),1);renderRegimes()})}
-$("addRegime").onclick=()=>{regimes.push({material:"Чёрная сталь",thickness:3,power:3000,gas:"Кислород",speed:1000,pierce:2});renderRegimes()};
-$("saveRegimes").onclick=()=>{localStorage.setItem("lc_regimes",JSON.stringify(regimes));toast("База режимов сохранена в браузере.")};
-$("exportRegimes").onclick=()=>download("laser-calc-regimes.json",JSON.stringify(regimes,null,2),"application/json");
-$("importRegimes").onchange=async e=>{try{let a=JSON.parse(await e.target.files[0].text());if(!Array.isArray(a))throw Error();regimes=a;renderRegimes();toast("Файл загружен. Нажмите «Сохранить базу».")}catch{toast("Не удалось прочитать JSON базы режимов.")}e.target.value=""};
-function download(name,content,type){let a=document.createElement("a"),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
-$("clearHistory").onclick=()=>{if(confirm("Удалить все сохранённые расчёты?")){history=[];localStorage.removeItem("lc_history");renderHistory();toast("История очищена.")}};
-$("resetLocal").onclick=()=>{if(confirm("Сбросить историю и базу режимов в этом браузере?")){localStorage.removeItem("lc_history");localStorage.removeItem("lc_regimes");history=[];regimes=defaultRegimes.slice();renderRegimes();toast("Локальные данные сброшены.")}};
-function showModal(title,text){$("modalTitle").textContent=title;$("modalText").textContent=text;$("modal").classList.add("show")}
-$("modalClose").onclick=$("modalOk").onclick=()=>$("modal").classList.remove("show");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("show")};
-document.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>showModal("Тариф «"+b.dataset.plan+"»","Это тестовая версия. Платёжный сервис и пользовательские аккаунты ещё не подключены — деньги не списываются. На следующем этапе подключим регистрацию, оплату и автоматическую активацию подписки."));
-renderRegimes();renderHistory();calculate(false);
+const $=id=>document.getElementById(id);let uploadedFiles=[],selectedMode=null;
+const CUT_MODE_DB={
+  "schemaVersion": 1,
+  "title": "LaserCalc preliminary cutting-mode database",
+  "machineProfile": {
+    "laserType": "fiber",
+    "referencePowerW": 3000,
+    "controller": "CypCut",
+    "referenceMachine": "HSG 3000 W"
+  },
+  "units": {
+    "speed": "m/min",
+    "pressure": "bar",
+    "focus": "mm",
+    "nozzleDiameter": "mm",
+    "pierceTime": "s"
+  },
+  "notes": [
+    "This is a preliminary reference database, not a production-ready technology library.",
+    "Speeds are approximate central values based on overlapping published 3 kW tables where available; ranges preserve source variation. They are not a statistical average across fully matched machines.",
+    "The LaserLandServis /cutmodes numeric rows could not be retrieved in this session. No record is falsely attributed to that site.",
+    "Published tables differ in source, fiber core, optics, head, nozzle, gas purity/pressure, material grade and quality target. Compare only matching gas and thickness records.",
+    "Only exact material/thickness/power/gas combinations in records are explicit database entries. Missing combinations must not be treated as validated.",
+    "The calculator's selected speed estimates only straight cutting time; pierces, leads, acceleration, corners, rapid moves and CAM sequence still need calibration from CypCut and actual machine time."
+  ],
+  "sources": [
+    {
+      "name": "Laser Legend / LaserLandServis",
+      "url": "https://laserlandservis.ru/cutmodes",
+      "role": "Requested primary source; detailed numeric rows have not yet been retrieved"
+    },
+    {
+      "name": "SIEME Laser",
+      "url": "https://www.siemelaser.com/news/3kw-fiber-laser-cutting-parameters.html",
+      "role": "3 kW reference speeds for carbon steel, stainless steel and aluminium; includes optics/gas caveats"
+    },
+    {
+      "name": "SBMachines",
+      "url": "https://sbmlaser.com/our-services/cutting-parameters/",
+      "role": "3 kW reference table with speed, gas pressure, nozzle, focus and height"
+    },
+    {
+      "name": "Raycut",
+      "url": "https://raycut.co.za/parameters",
+      "role": "Supplementary Raycus-source reference database; 3 kW profile"
+    },
+    {
+      "name": "Alpha SF 3015H",
+      "url": "https://portalimages.blob.core.windows.net/products/pdfs/czuaaigb_AlphaSF3015HFiberLaserCuttingMachine.pdf",
+      "role": "3 kW parameter PDF with carbon steel, stainless steel and aluminium speeds"
+    }
+  ],
+  "records": [
+    {
+      "material": "steel",
+      "thicknessMm": 3,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 3.2,
+      "speedMaxMMin": 4.1,
+      "speedMMin": 3.9,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 4,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 3.4,
+      "speedMaxMMin": 3.6,
+      "speedMMin": 3.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 5,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 2.6,
+      "speedMaxMMin": 3.5,
+      "speedMMin": 3.1,
+      "confidence": "low",
+      "source": "SBMachines; Raycut",
+      "note": "5 mm reference values vary by source and setup."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 6,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 2.3,
+      "speedMaxMMin": 2.8,
+      "speedMMin": 2.7,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 8,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 1.8,
+      "speedMaxMMin": 2.3,
+      "speedMMin": 2.2,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 10,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 1.2,
+      "speedMaxMMin": 1.6,
+      "speedMMin": 1.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 12,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.9,
+      "speedMaxMMin": 1.1,
+      "speedMMin": 1.05,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 14,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.8,
+      "speedMaxMMin": 0.95,
+      "speedMMin": 0.9,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 16,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.7,
+      "speedMaxMMin": 0.85,
+      "speedMMin": 0.8,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 18,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.6,
+      "speedMaxMMin": 0.72,
+      "speedMMin": 0.7,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 20,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.5,
+      "speedMaxMMin": 0.65,
+      "speedMMin": 0.6,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 22,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.5,
+      "speedMaxMMin": 0.55,
+      "speedMMin": 0.525,
+      "confidence": "low",
+      "source": "SIEME; SBMachines",
+      "note": "Published data is sparse at this thickness."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 25,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.45,
+      "speedMaxMMin": 0.5,
+      "speedMMin": 0.475,
+      "confidence": "low",
+      "source": "SIEME",
+      "note": "Single-source reference; production stability must be verified."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 1,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 40,
+      "speedMaxMMin": 53,
+      "speedMMin": 46.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 2,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 22,
+      "speedMaxMMin": 25,
+      "speedMMin": 23.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 3,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 8.5,
+      "speedMaxMMin": 12,
+      "speedMMin": 10.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 4,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 6,
+      "speedMaxMMin": 8,
+      "speedMMin": 6.75,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 5,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 3.6,
+      "speedMaxMMin": 4.5,
+      "speedMMin": 4.05,
+      "confidence": "low",
+      "source": "SBMachines; Raycut",
+      "note": "Only limited directly comparable 3 kW sources."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 6,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 2.5,
+      "speedMaxMMin": 3.1,
+      "speedMMin": 2.8,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 8,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 1,
+      "speedMaxMMin": 1.3,
+      "speedMMin": 1.2,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 10,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 0.75,
+      "speedMaxMMin": 0.8,
+      "speedMMin": 0.775,
+      "confidence": "low",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Some sources flag 10 mm as sample/non-production; verify before use."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 12,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 0.5,
+      "speedMaxMMin": 0.5,
+      "speedMMin": 0.5,
+      "confidence": "low",
+      "source": "SIEME",
+      "note": "Single-source reference; verify feasibility on this machine."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 1,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 30,
+      "speedMaxMMin": 43,
+      "speedMMin": 36.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 2,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 16,
+      "speedMaxMMin": 18,
+      "speedMMin": 17,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 3,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 7.5,
+      "speedMaxMMin": 10,
+      "speedMMin": 8.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 4,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 5,
+      "speedMaxMMin": 6,
+      "speedMMin": 5.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 5,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 3,
+      "speedMaxMMin": 3.2,
+      "speedMMin": 3.1,
+      "confidence": "low",
+      "source": "SBMachines; Alpha SF",
+      "note": "Only limited directly comparable 3 kW sources."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 6,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 1.5,
+      "speedMaxMMin": 2,
+      "speedMMin": 1.8,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 8,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 0.6,
+      "speedMaxMMin": 0.9,
+      "speedMMin": 0.7,
+      "confidence": "low",
+      "source": "SIEME; SBMachines",
+      "note": "Some sources differ substantially; use as a cautious reference only."
+    }
+  ]
+};
+const drop=$('dropzone'), input=$('file');
+$('browse').addEventListener('click',e=>{e.stopPropagation();input.click()});
+drop.addEventListener('click',e=>{if(e.target.id!=='browse')input.click()});
+drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click()}});
+input.addEventListener('change',()=>{Array.from(input.files||[]).forEach(readFile);input.value=''});
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
+drop.addEventListener('drop',e=>{Array.from(e.dataTransfer.files||[]).forEach(readFile)});
+function readFile(file){
+ const ext=(file.name.split('.').pop()||'').toLowerCase(),allowed=['dxf','lxd','lxds'];
+ if(!allowed.includes(ext)){$('fileStatus').textContent='Формат .'+ext+' пока не поддерживается.';return}
+ if(file.size>50*1024*1024){$('fileStatus').textContent='Файл больше 50 МБ.';return}
+ if(uploadedFiles.some(x=>x.name===file.name&&x.size===file.size))return;
+ const item={id:Date.now()+Math.random(),name:file.name,size:file.size,ext,file,qty:1,text:null,geometry:null,parseError:null};uploadedFiles.push(item);
+ if(ext==='dxf'){const reader=new FileReader();reader.onload=()=>{item.text=String(reader.result||'');renderFiles()};reader.onerror=()=>{$('fileStatus').textContent='Не удалось прочитать '+file.name};reader.readAsText(file)}
+ else if(ext==='lxds'||ext==='lxd'){readCypFile(item).then(renderFiles).catch(err=>{item.parseError=err.message||'Ошибка разбора';renderFiles()})}
+ renderFiles();
+}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderFiles(){
+ const list=$('fileList'),notice=$('importNotice');
+ list.innerHTML=uploadedFiles.map(x=>'<div class="file-item"><div><strong>'+esc(x.name)+'</strong><small>'+(x.geometry?esc(x.geometry.format)+' · '+(x.geometry.length/1000).toLocaleString('ru-RU',{maximumFractionDigits:2})+' м'+(x.geometry.unsupported?' · неподдерживаемые объекты: '+x.geometry.unsupported:''):x.text!==null?'DXF загружен':x.parseError?'Ошибка импорта':'Чтение файла…')+'</small></div><input aria-label="Количество деталей '+esc(x.name)+'" type="number" min="1" step="1" value="'+Math.max(1,Math.floor(Number(x.qty)||1))+'" data-qty="'+x.id+'"><button type="button" class="file-remove" data-remove="'+x.id+'" aria-label="Удалить '+esc(x.name)+'">×</button></div>').join('');
+ list.querySelectorAll('[data-qty]').forEach(el=>el.addEventListener('change',()=>{const x=uploadedFiles.find(y=>String(y.id)===el.dataset.qty);if(x){x.qty=Math.max(1,Math.floor(Number(el.value)||1));el.value=x.qty;}}));
+ list.querySelectorAll('[data-remove]').forEach(el=>el.addEventListener('click',()=>{uploadedFiles=uploadedFiles.filter(x=>String(x.id)!==el.dataset.remove);renderFiles();$('price').textContent='— ₽';$('resultCaption').textContent='Нажмите «Рассчитать стоимость» после изменения списка файлов.'}));
+ const errors=uploadedFiles.filter(x=>x.parseError);
+ notice.classList.toggle('hidden',!errors.length);
+ notice.textContent=errors.length?'Не удалось прочитать: '+errors.map(x=>x.name+': '+x.parseError).join(' · '):'';
+ $('fileStatus').textContent=uploadedFiles.length?'Файлов: '+uploadedFiles.length+'. Укажите количество деталей в каждом файле.':'Поддерживаются DXF и файлы CypCut/CypNest LXD/LXDS.';
+}
+function parseDxf(text){
+ const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/),all=[];
+ for(let i=0;i+1<lines.length;i+=2)all.push({c:lines[i].trim(),v:lines[i+1].trim()});
+ let pairs=[],inside=false,found=false;
+ for(let i=0;i<all.length;i++){
+  const q=all[i];
+  if(q.c==='0'&&q.v.toUpperCase()==='SECTION'&&all[i+1]?.c==='2'){
+   inside=all[i+1].v.toUpperCase()==='ENTITIES';if(inside)found=true;i++;continue;
+  }
+  if(inside&&q.c==='0'&&q.v.toUpperCase()==='ENDSEC'){inside=false;continue}
+  if(inside)pairs.push(q);
+ }
+ if(!found)pairs=all;
+ let length=0,entities=0,unsupported=0;
+ const val=(a,c,d=0)=>{const p=a.find(x=>x.c===String(c));const n=p?Number(p.v):d;return Number.isFinite(n)?n:d};
+ const add=(n)=>{if(Number.isFinite(n)&&n>1e-7){length+=n;entities++}else unsupported++};
+ for(let i=0;i<pairs.length;){
+  if(pairs[i].c!=='0'){i++;continue}
+  const type=pairs[i].v.toUpperCase();let j=i+1;while(j<pairs.length&&pairs[j].c!=='0')j++;
+  const a=pairs.slice(i+1,j);
+  if(type==='LINE'){add(Math.hypot(val(a,11)-val(a,10),val(a,21)-val(a,20)))}
+  else if(type==='CIRCLE'){const r=Math.abs(val(a,40));if(r>0)add(2*Math.PI*r);else unsupported++}
+  else if(type==='ARC'){const r=Math.abs(val(a,40)),start=val(a,50)*Math.PI/180,end=val(a,51)*Math.PI/180;let d=(end-start+Math.PI*2)%(Math.PI*2);if(r>0&&d>0)add(r*d);else unsupported++}
+  else if(type==='LWPOLYLINE'){
+   const pts=[];let p=null;for(const q of a){if(q.c==='10'){p={x:Number(q.v),y:0,b:0};pts.push(p)}else if(q.c==='20'&&p)p.y=Number(q.v);else if(q.c==='42'&&p)p.b=Number(q.v)}
+   if(pts.length<2){unsupported++}else{let l=0;for(let k=0;k<pts.length-1;k++){const u=pts[k].b,c=Math.hypot(pts[k+1].x-pts[k].x,pts[k+1].y-pts[k].y);l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}if((val(a,70)&1)!==0){const u=pts[pts.length-1].b,c=Math.hypot(pts[0].x-pts[pts.length-1].x,pts[0].y-pts[pts.length-1].y);l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}add(l)}
+  }else if(type==='POLYLINE'){
+   const pts=[];let k=j;while(k<pairs.length&&pairs[k].c==='0'&&pairs[k].v.toUpperCase()==='VERTEX'){let e=k+1;while(e<pairs.length&&pairs[e].c!=='0')e++;const va=pairs.slice(k+1,e);pts.push({x:val(va,10),y:val(va,20),b:val(va,42)});k=e}const closed=(val(a,70)&1)!==0;if(pts.length>=2){let l=0;for(let n=0;n<pts.length-(closed?0:1);n++){const p1=pts[n],p2=pts[(n+1)%pts.length],u=p1.b,c=Math.hypot(p2.x-p1.x,p2.y-p1.y);l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}add(l)}else unsupported++;i=k;continue
+  }else if(['POINT','TEXT','MTEXT','DIMENSION','INSERT','SPLINE','ELLIPSE','HATCH','SOLID','3DFACE','TRACE','RAY','XLINE'].includes(type))unsupported++;
+  i=j;
+ }
+ return {length,entities,unsupported};
+}
+
+async function unzipEntries(buffer){
+ const b=new Uint8Array(buffer),v=new DataView(buffer);let end=-1;
+ for(let i=b.length-22;i>=Math.max(0,b.length-65557);i--){if(v.getUint32(i,true)===0x06054b50){end=i;break}}
+ if(end<0)throw Error('Файл не распознан как ZIP-контейнер.');
+ const count=v.getUint16(end+10,true);let p=v.getUint32(end+16,true);const out={};
+ for(let i=0;i<count;i++){
+  if(v.getUint32(p,true)!==0x02014b50)throw Error('Повреждён каталог ZIP.');
+  const method=v.getUint16(p+10,true),size=v.getUint32(p+20,true),nl=v.getUint16(p+28,true),el=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),lo=v.getUint32(p+42,true);
+  const name=new TextDecoder().decode(b.slice(p+46,p+46+nl));p+=46+nl+el+cl;if(name.endsWith('/'))continue;
+  const start=lo+30+v.getUint16(lo+26,true)+v.getUint16(lo+28,true),raw=b.slice(start,start+size);let data;
+  if(method===0)data=raw;else if(method===8){if(typeof DecompressionStream==='undefined')throw Error('Для распаковки LXDS нужен актуальный Chrome.');try{data=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}catch(e){throw Error('Не удалось распаковать блок '+name)}}else continue;
+  out[name]=data;
+ }return out;
+}
+function xmlAttrs(s){const o={};for(const m of s.matchAll(/([A-Za-z0-9_]+)="([^"]*)"/g))o[m[1]]=m[2];return o}
+function xmlTags(xml,tag){return [...xml.matchAll(new RegExp('<('+tag+')\\b([^>]*)\\/?\\s*>','g'))].map(m=>({...xmlAttrs(m[2]),__tag:m[1]}))}
+async function readCypFile(item){
+ try{
+  const z=await unzipEntries(await item.file.arrayBuffer()),txt=n=>z[n]?new TextDecoder().decode(z[n]):'',sx=txt('Shapes2D/content.xml'),mx=txt('Model2D/content.xml'),partsXml=txt('Nest2D/Parts/content.xml'),blocksXml=txt('Blocks/content.xml'),bin=z['Geometry2D/data.bin'];
+  if(!sx||!bin)throw Error('Не найдены ожидаемые блоки геометрии CypCut.');
+  const shapes=xmlTags(sx,'(?:Circle|LwPolyline|Arc|Line|Ellipse|Spline)'),byHandle=new Map(shapes.map(s=>[s.Handle,s])),v=new DataView(bin.buffer,bin.byteOffset,bin.byteLength);
+  function shapeLength(s){if(!s)return null;const off=Number(s.GeoAddr),type=s.__tag||s.Class||'';if(!Number.isFinite(off)||off<0||off+100>v.byteLength)return null;if(type==='Circle'){const r=Math.abs(v.getFloat64(off+84,true));return r>0&&r<1e6?{length:2*Math.PI*r,entities:1}:null}if(type!=='LwPolyline')return null;const n=v.getUint32(off+84,true);if(n<2||n>100000||off+88+n*32>v.byteLength)return null;const pts=[];for(let j=0;j<n;j++){const q=off+88+j*32;pts.push({x:v.getFloat64(q+4,true),y:v.getFloat64(q+12,true),b:v.getFloat64(q+20,true)})}let l=0;for(let j=0;j<n-1;j++){const a=pts[j],b=pts[j+1],c=Math.hypot(b.x-a.x,b.y-a.y),u=a.b;l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}if((v.getUint32(off+80,true)&1)!==0){const a=pts[n-1],b=pts[0],c=Math.hypot(b.x-a.x,b.y-a.y),u=a.b;l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}return l>0&&Number.isFinite(l)?{length:l,entities:1}:null}
+  let length=0,entities=0,unsupported=0;
+  if(mx){const model=new Set(xmlTags(mx,'Shape').map(x=>x.Handle).filter(Boolean));for(const s of shapes){if(s.Handle&&!model.has(s.Handle))continue;const g=shapeLength(s);if(g){length+=g.length;entities+=g.entities}else unsupported++}}
+  else if(partsXml&&blocksXml){
+   const blockMap=new Map();
+   for(const m of blocksXml.matchAll(new RegExp('<Block\\b([^>]*)>([\\s\\S]*?)</Block>','g'))){const a=xmlAttrs(m[1]),handles=[...m[2].matchAll(new RegExp('<Shape\\b([^>]*)/?\\s*>','g'))].map(x=>xmlAttrs(x[1]).Handle).filter(Boolean);blockMap.set(a.Name,handles)}
+   for(const m of partsXml.matchAll(new RegExp('<NestPart\\b([^>]*)>([\\s\\S]*?)</NestPart>','g'))){const a=xmlAttrs(m[1]),body=m[2],qty=Math.max(0,Number(a.AmountUsed||a.Amount||0));if(!qty)continue;let handles=[...body.matchAll(new RegExp('<Shape\\b([^>]*)/?\\s*>','g'))].map(x=>xmlAttrs(x[1]).Handle).filter(Boolean);if(a.ShapeCls==='Insert'){const bm=body.match(new RegExp('<BlockName>([\\s\\S]*?)</BlockName>'));if(bm)handles=blockMap.get(bm[1])||handles}let pl=0,pe=0;for(const id of handles){const g=shapeLength(byHandle.get(id));if(g){pl+=g.length;pe+=g.entities}else unsupported++}if(pl>0){length+=pl*qty;entities+=pe*qty}else unsupported+=qty}
+  }else throw Error('Не удалось определить модель или список деталей CypNest внутри LXDS.');
+  if(!entities||!length)throw Error('Не удалось извлечь поддерживаемые контуры.');
+  const app=(txt('info.xml').match(/AppVer="([^"]+)"/)||[])[1]||'неизвестно';item.geometry={length,entities,unsupported,format:'CypCut/CypNest',version:app};
+ }catch(e){item.parseError=e.message||'Ошибка разбора LXDS'}
+}
+function speed(material,thickness,power,gas){
+ const t=num(thickness,1),p=num(power,3000);
+ selectedMode=CUT_MODE_DB.records.find(r=>r.material===material&&r.gas===gas&&r.powerW===p&&Math.abs(r.thicknessMm-t)<0.001)||null;
+ if(selectedMode)return selectedMode.speedMMin*1000;
+ const base=material==='steel'?(gas==='oxygen'?4200:gas==='air'?3000:1800):material==='stainless'?(gas==='nitrogen'?3600:gas==='air'?2000:1100):(gas==='nitrogen'?3000:gas==='air'?2200:800);
+ return Math.max(120,base*(p/3000)**.62/Math.pow(Math.max(.5,t),.72));
+}
+function money(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
+function calculate(){
+ if(!uploadedFiles.length){$('price').textContent='— ₽';$('resultCaption').textContent='Сначала загрузите файл или несколько DXF/LXDS.';return}
+ const usable=uploadedFiles.filter(x=>(x.ext==='dxf'&&x.text!==null)||x.geometry);
+ if(!usable.length){$('price').textContent='— ₽';$('resultCaption').textContent='Не удалось извлечь геометрию. Проверьте файл или экспортируйте DXF из CypCut.';return}
+ const parsed=usable.map(x=>({item:x,geom:x.geometry||parseDxf(x.text)})),invalid=parsed.filter(x=>!x.geom.length);
+ if(invalid.length){$('price').textContent='— ₽';$('resultCaption').textContent='Не удалось прочитать геометрию: '+invalid.map(x=>x.item.name).join(', ')+'.';return}
+ const g=parsed.reduce((a,x)=>({length:a.length+x.geom.length*x.item.qty,entities:a.entities+x.geom.entities*x.item.qty,unsupported:a.unsupported+(x.geom.unsupported||0)*x.item.qty}),{length:0,entities:0,unsupported:0});
+ const mat=$('material').value,th=num($('thickness').value,1),pow=num($('power').value,3000),gas=$('gas').value,mmMin=speed(mat,th,pow,gas),lenM=g.length/1000,cutMin=lenM/(mmMin/1000),pierces=Math.max(1,g.entities),pierceSec=Math.max(0,num($('pierce').value,.7)),totalMin=cutMin+pierces*pierceSec/60+g.entities*.15/60;
+ const work=totalMin/60*Math.max(0,num($('hourly').value,6000)),materialCost=$('includeMaterial').checked?Math.max(0,num($('sheetCost').value,0)):0,markup=Math.max(0,num($('markup').value,20)),total=(work+materialCost)*(1+markup/100);
+ $('price').textContent=money(total);$('resultCaption').textContent='Оценка по '+usable.length+' файлам с учётом количества.';$('length').textContent=lenM.toLocaleString('ru-RU',{maximumFractionDigits:2})+' м';$('pierces').textContent='≈ '+pierces;
+ $('time').textContent=totalMin<1?Math.round(totalMin*60)+' сек':(Math.floor(totalMin/60)?Math.floor(totalMin/60)+' ч ':'')+Math.round(totalMin%60)+' мин';$('workCost').textContent=money(work*(1+markup/100));$('materialPrice').textContent=money(materialCost);$('materialRow').classList.toggle('hidden',!$('includeMaterial').checked);$('hourlyDisplay').textContent=money(num($('hourly').value,6000))+'/ч';
+ if(selectedMode)$('resultCaption').textContent+=' Скорость взята из стартовой базы ('+selectedMode.speedMinMMin+'–'+selectedMode.speedMaxMMin+' м/мин; '+selectedMode.source+'). Значение предварительное.';else $('resultCaption').textContent+=' Для выбранной комбинации нет точной строки в базе: использована грубая формула.';
+ $('resultCaption').textContent+=' Пробивки оценены по числу распознанных геометрических объектов, а не по реальной CAM-траектории; для DXF с отдельными отрезками это может завышать время.';
+ if(g.unsupported)$('resultCaption').textContent+=' Есть неподдерживаемые объекты, оценка может быть неполной.';
+ if(parsed.some(x=>x.item.geometry))$('resultCaption').textContent+=' Из LXDS/LXD извлечены геометрические контуры; CAM-операции не учитываются.';
+}
+$('calculate').addEventListener('click',calculate);
+$('hourly').addEventListener('input',()=>{$('hourlyDisplay').textContent=money(num($('hourly').value,0))+'/ч'});
 </script>
 </body></html>

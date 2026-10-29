@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Extracted metadata from user-provided CypCut LXDS samples for future calculator calibration.",
+  "extractedAt": "2026-10-29",
+  "calibrationStatus": "metadata_only_no_runtime_validation",
+  "warning": "These are saved document presets, not proof of successful cutting on the user's HSG machine. Neither LXDS file contains a verified elapsed cutting time in the extracted metadata. Do not use these entries as machine-time ground truth.",
+  "samples": [
+    {
+      "id": "lxds-23-copy",
+      "fileName": "23 copy.lxds",
+      "application": "CypCut",
+      "applicationVersion": "6.3.907.11",
+      "savedBy": "HSG",
+      "documentType": "Model2D",
+      "geometry": {
+        "shapeCount": 7,
+        "classes": {
+          "Circle": 6,
+          "LwPolyline": 1
+        },
+        "boundingBoxFromModel": {
+          "minXmm": -127.461777,
+          "minYmm": -369.024252,
+          "maxXmm": 96.1667132,
+          "maxYmm": 80.975748
+        },
+        "boundingBoxNote": "Bounding box dimensions are derived from model extents; they are not a sheet nesting.",
+        "cutLengthEstimate": {
+          "method": "Decoded six circle geometries from binary Geometry2D plus closed LwPolyline vertices; no quantity multiplier applied.",
+          "outerPolylineMm": 1347.256981,
+          "sixCirclesTotalMm": 263.893783,
+          "totalContourLengthM": 1.611151,
+          "note": "Geometry-only length for the one drawing contained in this file. Filename includes 'copy' but no repeat quantity is assumed."
+        },
+        "pureCutTimeEstimate": {
+          "speedMMinFromNote": 0.8,
+          "timeMinutes": 2.01394,
+          "timeHours": 0.03357,
+          "includes": "Contour length divided by note speed only",
+          "excludes": "Pierces, lead-ins, acceleration/deceleration, corners, rapid moves, machine waits"
+        }
+      },
+      "preset": {
+        "materialLabel": "冷轧板",
+        "materialLabelTranslation": "cold-rolled sheet",
+        "thicknessMm": 10,
+        "presetFileName": "сталт 14мм сопло 3.5д кислород.fsm",
+        "presetPathIndicates": "Carbon steel / oxygen",
+        "nozzle": "D2.0E",
+        "focusFromNoteMm": 5,
+        "focusFromCutParameterMm": 4,
+        "gasPressureFromCutParameter": 0.6,
+        "gasPressureUnitFromNote": "bar",
+        "speedFromNoteMMin": 0.8,
+        "cypCutWorkSpeedRaw": 15,
+        "pierceStepCount": 3
+      },
+      "warnings": [
+        "Preset filename says 14 mm while document thickness is 10 mm.",
+        "Material parameter nozzle is D2.0E while preset filename says 3.5 nozzle.",
+        "Focus in note (5 mm) differs from Cut Focus (4).",
+        "WorkSpeed raw parameter (15) differs from note speed (0.8 m/min); do not treat raw WorkSpeed as m/min without decoding its unit/meaning.",
+        "Use 0.8 m/min only as a candidate reference from the note, not as a verified cut result."
+      ]
+    },
+    {
+      "id": "lxds-5mm-two-sheets",
+      "fileName": "5мм 2 листа заказ почта базис.lxds",
+      "application": "CypCut",
+      "applicationVersion": "6.3.907.11",
+      "savedBy": "HSG",
+      "documentType": "Nest2D",
+      "nesting": {
+        "sheets": [
+          {
+            "resultIndex": 1,
+            "sheetWidthMm": 1500,
+            "sheetHeightMm": 3000,
+            "partCount": 96,
+            "utilizationPercent": 88.6689631
+          },
+          {
+            "resultIndex": 2,
+            "sheetWidthMm": 1500,
+            "sheetHeightMm": 3000,
+            "partCount": 275,
+            "utilizationPercent": 75.1110836
+          }
+        ],
+        "totalSheets": 2,
+        "totalPartsAcrossResults": 371,
+        "partInventory": [
+          {
+            "name": "5_Поз.1_110",
+            "quantity": 110
+          },
+          {
+            "name": "5_Поз.2_15",
+            "quantity": 15
+          },
+          {
+            "name": "5_Поз.3_220",
+            "quantity": 220
+          },
+          {
+            "name": "5_Поз.4_20",
+            "quantity": 20
+          },
+          {
+            "name": "5_Ф1_3",
+            "quantity": 3
+          },
+          {
+            "name": "5_Ф2_3",
+            "quantity": 3
+          }
+        ],
+        "cutLengthEstimate": {
+          "method": "Sum of each unique part outline from LXDS XML, multiplied by AmountUsed; added the 2 circle holes and outer contour from the referenced block geometry for the 15 inserted parts.",
+          "perPartM": {
+            "5_Поз.1_110": 0.5565685425,
+            "5_Поз.2_15_including_2_holes": 0.8179645943,
+            "5_Поз.3_220": 0.502,
+            "5_Поз.4_20": 0.2389949494,
+            "5_Ф1_3": 2.7445560762,
+            "5_Ф2_3": 2.5645568716
+          },
+          "totalContourLengthM": 204.639246,
+          "note": "Straight segments between stored vertices are summed; this is the geometric contour length, not the actual CAM trajectory. The value includes part outer contours and the two circles in each of the 15 inserted parts."
+        },
+        "pureCutTimeEstimate": {
+          "speedMMinFromNote": 2.5,
+          "timeMinutes": 81.8557,
+          "timeHours": 1.36426,
+          "includes": "Total contour length divided by the saved note speed of 2.5 m/min",
+          "excludes": "Pierces, lead-ins, acceleration/deceleration, corner slowdown, rapid moves, repositioning and machine waits",
+          "speedWarning": "Technical/CamParams WorkSpeed is stored as 48.333, and the saved preset name indicates 5 mm/air while MaterialParams says 4 mm/cold-rolled sheet. 2.5 m/min is taken from the human-readable note only and is not confirmed as the actual speed used for every contour."
+        }
+      },
+      "geometry": {
+        "shapeIndexCount": 1215,
+        "classes": {
+          "LwPolyline": 1123,
+          "Circle": 92
+        },
+        "note": "Index includes shape definitions/objects and is not equal to the number of placed parts."
+      },
+      "preset": {
+        "presetFileName": "5мм воздух сопло 2.0.fsm",
+        "presetPathIndicates": "Stainless steel / air",
+        "materialParameterLabel": "冷轧板",
+        "materialParameterThicknessMm": 4,
+        "nozzle": "S2.0C",
+        "speedFromNoteMMin": 2.5,
+        "heightFromNoteMm": 0.6,
+        "focusFromNoteMm": -2.6,
+        "gasPressureFromCutParameterRaw": 10,
+        "cypCutWorkSpeedRaw": 48.333,
+        "pierceStepCount": 1
+      },
+      "warnings": [
+        "Filename says 5 mm, but MaterialParams thickness is 4 mm.",
+        "Preset path indicates stainless steel/air, while MaterialParams says cold-rolled sheet.",
+        "The cut gas type is not explicitly present in the Cut node; the pressure value 10 has no decoded unit in this extraction.",
+        "Use 2.5 m/min only as a candidate reference from the note, not as a verified cut result."
+      ]
+    }
+  ],
+  "nextCalibrationInputsNeeded": [
+    "Compare the pure-cut estimate with CypCut's own estimated processing time for each nest result.",
+    "Confirm the actual speed/regime applied in the job (saved note says 2.5 m/min but raw WorkSpeed is 48.333).",
+    "For a machine-time estimate, add pierce counts/times, lead-ins, head dynamics and rapid moves.",
+    "Actual start-to-finish machine time is needed to calibrate the non-cutting overhead."
+  ]
+}
