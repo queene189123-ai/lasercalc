@@ -24,7 +24,21 @@
           "maxXmm": 96.1667132,
           "maxYmm": 80.975748
         },
-        "boundingBoxNote": "Bounding box dimensions are derived from model extents; they are not a sheet nesting."
+        "boundingBoxNote": "Bounding box dimensions are derived from model extents; they are not a sheet nesting.",
+        "cutLengthEstimate": {
+          "method": "Decoded six circle geometries from binary Geometry2D plus closed LwPolyline vertices; no quantity multiplier applied.",
+          "outerPolylineMm": 1347.256981,
+          "sixCirclesTotalMm": 263.893783,
+          "totalContourLengthM": 1.611151,
+          "note": "Geometry-only length for the one drawing contained in this file. Filename includes 'copy' but no repeat quantity is assumed."
+        },
+        "pureCutTimeEstimate": {
+          "speedMMinFromNote": 0.8,
+          "timeMinutes": 2.01394,
+          "timeHours": 0.03357,
+          "includes": "Contour length divided by note speed only",
+          "excludes": "Pierces, lead-ins, acceleration/deceleration, corners, rapid moves, machine waits"
+        }
       },
       "preset": {
         "materialLabel": "冷轧板",
@@ -100,7 +114,28 @@
             "name": "5_Ф2_3",
             "quantity": 3
           }
-        ]
+        ],
+        "cutLengthEstimate": {
+          "method": "Sum of each unique part outline from LXDS XML, multiplied by AmountUsed; added the 2 circle holes and outer contour from the referenced block geometry for the 15 inserted parts.",
+          "perPartM": {
+            "5_Поз.1_110": 0.5565685425,
+            "5_Поз.2_15_including_2_holes": 0.8179645943,
+            "5_Поз.3_220": 0.502,
+            "5_Поз.4_20": 0.2389949494,
+            "5_Ф1_3": 2.7445560762,
+            "5_Ф2_3": 2.5645568716
+          },
+          "totalContourLengthM": 204.639246,
+          "note": "Straight segments between stored vertices are summed; this is the geometric contour length, not the actual CAM trajectory. The value includes part outer contours and the two circles in each of the 15 inserted parts."
+        },
+        "pureCutTimeEstimate": {
+          "speedMMinFromNote": 2.5,
+          "timeMinutes": 81.8557,
+          "timeHours": 1.36426,
+          "includes": "Total contour length divided by the saved note speed of 2.5 m/min",
+          "excludes": "Pierces, lead-ins, acceleration/deceleration, corner slowdown, rapid moves, repositioning and machine waits",
+          "speedWarning": "Technical/CamParams WorkSpeed is stored as 48.333, and the saved preset name indicates 5 mm/air while MaterialParams says 4 mm/cold-rolled sheet. 2.5 m/min is taken from the human-readable note only and is not confirmed as the actual speed used for every contour."
+        }
       },
       "geometry": {
         "shapeIndexCount": 1215,
@@ -132,8 +167,9 @@
     }
   ],
   "nextCalibrationInputsNeeded": [
-    "CypCut's estimated processing time for each nest result, if shown in the program.",
-    "Actual start-to-finish machine cutting time for each sheet, excluding setup/loading if possible.",
-    "Confirm actual material grade, thickness, gas, and which saved preset was really used."
+    "Compare the pure-cut estimate with CypCut's own estimated processing time for each nest result.",
+    "Confirm the actual speed/regime applied in the job (saved note says 2.5 m/min but raw WorkSpeed is 48.333).",
+    "For a machine-time estimate, add pierce counts/times, lead-ins, head dynamics and rapid moves.",
+    "Actual start-to-finish machine time is needed to calibrate the non-cutting overhead."
   ]
 }
