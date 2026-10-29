@@ -464,6 +464,53 @@ input.addEventListener('change',()=>{Array.from(input.files||[]).forEach(readFil
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
 drop.addEventListener('drop',e=>{Array.from(e.dataTransfer.files||[]).forEach(readFile)});
 function readFile(file){
+ const ext=(file.name.split('.').pop()||'').toLowerCase(),allowed=['dxf','lxd','lxds','nrp','nrp2','pdf','zip'];
+ if(!allowed.includes(ext)){$('fileStatus').textContent='Формат .'+ext+' пока не поддерживается.';return}
+ if(file.size>50*1024*1024){$('fileStatus').textContent='Файл больше 50 МБ.';return}
+ if(uploadedFiles.some(x=>x.name===file.name&&x.size===file.size))return;
+ const item={id:Date.now()+Math.random(),name:file.name,size:file.size,ext,file,qty:1,text:null,geometry:null,parseError:null};uploadedFiles.push(item);
+ if(ext==='dxf'){const reader=new FileReader();reader.onload=()=>{item.text=String(reader.result||'');renderFiles()};reader.onerror=()=>{$('fileStatus').textContent='Не удалось прочитать '+file.name};reader.readAsText(file)}
+ else if(ext==='lxds'||ext==='lxd'){readCypFile(item).then(renderFiles).catch(err=>{item.parseError=err.message||'Ошибка разбора';renderFiles()})}
+ renderFiles();
+}
+async function unzipEntries(buffer){
+ const b=new Uint8Array(buffer),v=new DataView(buffer);let end=-1;
+ for(let i=b.length-22;i>=Math.max(0,b.length-65557);i--){if(v.getUint32(i,true)===0x06054b50){end=i;break}}
+ if(end<0)throw Error('Файл не распознан как ZIP-контейнер.');
+ const count=v.getUint16(end+10,true);let p=v.getUint32(end+16,true);const out={};
+ for(let i=0;i<count;i++){
+  if(v.getUint32(p,true)!==0x02014b50)throw Error('Повреждён каталог ZIP.');
+  const method=v.getUint16(p+10,true),size=v.getUint32(p+20,true),nl=v.getUint16(p+28,true),el=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),lo=v.getUint32(p+42,true);
+  const name=new TextDecoder().decode(b.slice(p+46,p+46+nl));p+=46+nl+el+cl;if(name.endsWith('/'))continue;
+  const start=lo+30+v.getUint16(lo+26,true)+v.getUint16(lo+28,true),raw=b.slice(start,start+size);let data;
+  if(method===0)data=raw;else if(method===8){if(typeof DecompressionStream==='undefined')throw Error('Для распаковки LXDS нужен актуальный Chrome.');try{data=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}catch(e){throw Error('Не удалось распаковать блок '+name)}}else continue;
+  out[name]=data;
+ }return out;
+}
+function xmlAttrs(s){const o={};for(const m of s.matchAll(/([A-Za-z0-9_]+)="([^"]*)"/g))o[m[1]]=m[2];return o}
+function xmlTags(xml,tag){return [...xml.matchAll(new RegExp('<'+tag+'\\b([^>]*)\\/?\\s*>','g'))].map(m=>xmlAttrs(m[1]))}
+async function readCypFile(item){
+ try{
+  const z=await unzipEntries(await item.file.arrayBuffer()),txt=n=>z[n]?new TextDecoder().decode(z[n]):'',sx=txt('Shapes2D/content.xml'),mx=txt('Model2D/content.xml'),bin=z['Geometry2D/data.bin'];
+  if(!sx||!mx||!bin)throw Error('Не найдены ожидаемые блоки геометрии CypCut.');
+  const model=new Set(xmlTags(mx,'Shape').map(x=>x.Handle).filter(Boolean)),shapes=xmlTags(sx,'(Circle|LwPolyline|Arc|Line|Ellipse|Spline)'),v=new DataView(bin.buffer,bin.byteOffset,bin.byteLength);let length=0,entities=0,unsupported=0;
+  for(const s of shapes){
+   if(s.Handle&&!model.has(s.Handle))continue;const off=Number(s.GeoAddr);if(!Number.isFinite(off)||off<0||off+100>v.byteLength){unsupported++;continue}
+   const type=s.Circle!==undefined?'Circle':s.LwPolyline!==undefined?'LwPolyline':(s.Class||'');
+   if(type==='Circle'){const r=Math.abs(v.getFloat64(off+88,true));if(r>0&&r<1e6){length+=2*Math.PI*r;entities++}else unsupported++}
+   else if(type==='LwPolyline'){
+    const n=v.getUint32(off+84,true);if(n<2||n>100000||off+88+n*32>v.byteLength){unsupported++;continue}
+    const pts=[];for(let j=0;j<n;j++){const q=off+88+j*32;pts.push({x:v.getFloat64(q+4,true),y:v.getFloat64(q+12,true),b:v.getFloat64(q+20,true)})}
+    let l=0;for(let j=0;j<n;j++){if(j===n-1)break;const a=pts[j],b=pts[j+1],c=Math.hypot(b.x-a.x,b.y-a.y),u=a.b;l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}
+    if((v.getUint32(off+80,true)&1)!==0){const a=pts[n-1],b=pts[0],c=Math.hypot(b.x-a.x,b.y-a.y),u=a.b;l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}
+    if(l>0&&Number.isFinite(l)){length+=l;entities++}else unsupported++;
+   }else unsupported++;
+  }
+  if(!entities||!length)throw Error('Не удалось извлечь поддерживаемые контуры.');
+  const app=(txt('info.xml').match(/AppVer="([^"]+)"/)||[])[1]||'неизвестно';item.geometry={length,entities,unsupported,format:'CypCut',version:app};
+ }catch(e){item.parseError=e.message||'Ошибка разбора LXDS'}
+}
+
  const ext=(file.name.split('.').pop()||'').toLowerCase();
  const allowed=['dxf','lxd','lxds','nrp','nrp2','pdf','zip'];
  if(!allowed.includes(ext)){$('fileStatus').textContent='Формат .'+ext+' пока не поддерживается. Выберите DXF или файл CypCut/CypNest.';return}
@@ -484,11 +531,10 @@ function renderFiles(){
   row.append(info,qty,remove);$('fileList').append(row);
  });
  $('fileStatus').textContent=uploadedFiles.length?('Загружено файлов: '+uploadedFiles.length+' · укажите количество для каждого DXF'): 'DXF, LXD/LXDS, NRP/NRP2 или несколько DXF-файлов';
- const unsupported=uploadedFiles.filter(x=>['lxd','lxds','nrp','nrp2','pdf','zip'].includes(x.ext));
- const notice=$('importNotice');
- if(unsupported.length){notice.classList.remove('hidden');notice.textContent='Файлы CypCut/CypNest распознаны по расширению, но их внутренний формат ещё не подключён. Для расчёта сейчас загрузите экспорт DXF для каждого раскроя. Важно: DXF не содержит технологических параметров, поэтому время будет предварительной оценкой. PDF и ZIP пока не анализируются автоматически.'}
- else {notice.classList.add('hidden');notice.textContent=''}
-}
+ const unsupported=uploadedFiles.filter(x=>['lxd','lxds','nrp','nrp2','pdf','zip'].includes(x.ext)&&!x.geometry);
+ const notice=$('importNotice'),ready=uploadedFiles.filter(x=>x.geometry),errors=uploadedFiles.filter(x=>x.parseError);
+ if(ready.length||unsupported.length||errors.length){notice.classList.remove('hidden');const p=[];if(ready.length)p.push('Геометрия извлечена из '+ready.length+' файла(ов) CypCut. Технологические параметры, порядок резки и реальные холостые перемещения пока не читаются.');if(unsupported.some(x=>['nrp','nrp2','pdf','zip'].includes(x.ext)))p.push('NRP/NRP2, PDF и ZIP как самостоятельные входные форматы пока не декодируются.');if(errors.length)p.push(errors.map(x=>x.name+': '+x.parseError).join(' '));if(unsupported.some(x=>['lxd','lxds'].includes(x.ext)))p.push('Для этого файла попробуйте экспортировать раскрой в DXF.');notice.textContent=p.join(' ')}else{notice.classList.add('hidden');notice.textContent=''}
+
 $('includeMaterial').addEventListener('change',()=> $('sheetField').classList.toggle('hidden',!$('includeMaterial').checked));
 const num=(v,f=0)=>Number.isFinite(Number(v))?Number(v):f;
 function parseDxf(text){
@@ -527,24 +573,19 @@ function speed(material,thickness,power,gas){
 }
 function money(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
 function calculate(){
- if(!uploadedFiles.length){$('price').textContent='— ₽';$('resultCaption').textContent='Сначала загрузите файл или несколько DXF.';return}
- const dxfs=uploadedFiles.filter(x=>x.ext==='dxf'&&x.text!==null);
- if(!dxfs.length){$('price').textContent='— ₽';$('resultCaption').textContent='Файлы CypCut/CypNest распознаны, но разбор их внутренних форматов ещё не реализован. Для предварительного расчёта экспортируйте раскрой в DXF.';return}
- const parsed=dxfs.map(x=>({item:x,geom:parseDxf(x.text)}));
- const invalid=parsed.filter(x=>!x.geom.length);
- if(invalid.length){$('price').textContent='— ₽';$('resultCaption').textContent='Не удалось прочитать геометрию: '+invalid.map(x=>x.item.name).join(', ')+'. Проверьте DXF.';return}
- const g=parsed.reduce((a,x)=>({length:a.length+x.geom.length*x.item.qty,entities:a.entities+x.geom.entities*x.item.qty,unsupported:a.unsupported+x.geom.unsupported*x.item.qty}),{length:0,entities:0,unsupported:0});
- const mat=$('material').value,th=num($('thickness').value,1),pow=num($('power').value,3000),gas=$('gas').value;
- const mmMin=speed(mat,th,pow,gas),lenM=g.length/1000,cutMin=lenM/(mmMin/1000),pierces=Math.max(1,g.entities),pierceSec=Math.max(0,num($('pierce').value,.7));
- const totalMin=cutMin+(pierces*pierceSec/60)+(g.entities*.15/60);
+ if(!uploadedFiles.length){$('price').textContent='— ₽';$('resultCaption').textContent='Сначала загрузите файл или несколько DXF/LXDS.';return}
+ const usable=uploadedFiles.filter(x=>(x.ext==='dxf'&&x.text!==null)||x.geometry);
+ if(!usable.length){$('price').textContent='— ₽';$('resultCaption').textContent='Не удалось извлечь геометрию. Проверьте файл или экспортируйте DXF из CypCut.';return}
+ const parsed=usable.map(x=>({item:x,geom:x.geometry||parseDxf(x.text)})),invalid=parsed.filter(x=>!x.geom.length);
+ if(invalid.length){$('price').textContent='— ₽';$('resultCaption').textContent='Не удалось прочитать геометрию: '+invalid.map(x=>x.item.name).join(', ')+'.';return}
+ const g=parsed.reduce((a,x)=>({length:a.length+x.geom.length*x.item.qty,entities:a.entities+x.geom.entities*x.item.qty,unsupported:a.unsupported+(x.geom.unsupported||0)*x.item.qty}),{length:0,entities:0,unsupported:0});
+ const mat=$('material').value,th=num($('thickness').value,1),pow=num($('power').value,3000),gas=$('gas').value,mmMin=speed(mat,th,pow,gas),lenM=g.length/1000,cutMin=lenM/(mmMin/1000),pierces=Math.max(1,g.entities),pierceSec=Math.max(0,num($('pierce').value,.7)),totalMin=cutMin+pierces*pierceSec/60+g.entities*.15/60;
  const work=totalMin/60*Math.max(0,num($('hourly').value,6000)),materialCost=$('includeMaterial').checked?Math.max(0,num($('sheetCost').value,0)):0,markup=Math.max(0,num($('markup').value,20)),total=(work+materialCost)*(1+markup/100);
- $('price').textContent=money(total);$('resultCaption').textContent='Оценка по '+dxfs.length+' DXF-файлам с учётом количества.';
- $('length').textContent=lenM.toLocaleString('ru-RU',{maximumFractionDigits:2})+' м';$('pierces').textContent='≈ '+pierces;
- $('time').textContent=totalMin<1?Math.round(totalMin*60)+' сек':(Math.floor(totalMin/60)?Math.floor(totalMin/60)+' ч ':'')+Math.round(totalMin%60)+' мин';
- $('workCost').textContent=money(work*(1+markup/100));$('materialPrice').textContent=money(materialCost);$('materialRow').classList.toggle('hidden',!$('includeMaterial').checked);$('hourlyDisplay').textContent=money(num($('hourly').value,6000))+'/ч';
- if(selectedMode)$('resultCaption').textContent+=' Скорость взята из стартовой базы ('+selectedMode.speedMinMMin+'–'+selectedMode.speedMaxMMin+' м/мин; источник: '+selectedMode.source+'). Значение предварительное.';else $('resultCaption').textContent+=' Для выбранной комбинации нет точной строки в базе: использована грубая формула, точность ниже.';
+ $('price').textContent=money(total);$('resultCaption').textContent='Оценка по '+usable.length+' файлам с учётом количества.';$('length').textContent=lenM.toLocaleString('ru-RU',{maximumFractionDigits:2})+' м';$('pierces').textContent='≈ '+pierces;
+ $('time').textContent=totalMin<1?Math.round(totalMin*60)+' сек':(Math.floor(totalMin/60)?Math.floor(totalMin/60)+' ч ':'')+Math.round(totalMin%60)+' мин';$('workCost').textContent=money(work*(1+markup/100));$('materialPrice').textContent=money(materialCost);$('materialRow').classList.toggle('hidden',!$('includeMaterial').checked);$('hourlyDisplay').textContent=money(num($('hourly').value,6000))+'/ч';
+ if(selectedMode)$('resultCaption').textContent+=' Скорость взята из стартовой базы ('+selectedMode.speedMinMMin+'–'+selectedMode.speedMaxMMin+' м/мин; '+selectedMode.source+'). Значение предварительное.';else $('resultCaption').textContent+=' Для выбранной комбинации нет точной строки в базе: использована грубая формула.';
  if(g.unsupported)$('resultCaption').textContent+=' Есть неподдерживаемые объекты, оценка может быть неполной.';
- if(uploadedFiles.some(x=>['lxd','lxds','nrp','nrp2'].includes(x.ext))) $('resultCaption').textContent+=' В расчёт вошли только DXF; технологические файлы пока не разобраны.';
+ if(parsed.some(x=>x.item.geometry))$('resultCaption').textContent+=' Из LXDS/LXD извлечены геометрические контуры; CAM-операции не учитываются.';
 }
 $('calculate').addEventListener('click',calculate);
 $('hourly').addEventListener('input',()=>{$('hourlyDisplay').textContent=money(num($('hourly').value,0))+'/ч'});
