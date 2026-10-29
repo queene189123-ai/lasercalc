@@ -148,6 +148,32 @@ async function testSyntheticCypCutArchive() {
     `LXDS circle length: expected ${2 * Math.PI * 7}, got ${item.geometry.length}`);
   assert.equal(item.geometry.entities, 1);
   console.log('PASS synthetic CypCut/LXDS ZIP import');
+
+  const nestedGeometry = Buffer.alloc(256);
+  nestedGeometry.writeUInt32LE(1, 80);
+  nestedGeometry.writeUInt32LE(4, 84);
+  [[0, 0], [10, 0], [10, 5], [0, 5]].forEach(([x, y], index) => {
+    const offset = 88 + index * 32;
+    nestedGeometry.writeDoubleLE(x, offset + 4);
+    nestedGeometry.writeDoubleLE(y, offset + 12);
+    nestedGeometry.writeDoubleLE(0, offset + 20);
+  });
+  const nestedArchive = storedZip({
+    'Shapes2D/content.xml': '<Shapes><LwPolyline Handle="P1" GeoAddr="0"/></Shapes>',
+    'Nest2D/Parts/content.xml': '<Parts><NestPart AmountUsed="2"><Shape Handle="P1"/></NestPart></Parts>',
+    'Blocks/content.xml': '<Blocks/>',
+    'Geometry2D/data.bin': nestedGeometry,
+  });
+  const nestedItem = {
+    file: { arrayBuffer: async () => nestedArchive.buffer.slice(nestedArchive.byteOffset, nestedArchive.byteOffset + nestedArchive.byteLength) },
+  };
+  await cypContext.readCypFile(nestedItem);
+  assert.equal(nestedItem.parseError, undefined, nestedItem.parseError || 'Nested CypNest parser should not report an error');
+  assert.ok(nestedItem.geometry, 'Nested CypNest parser should produce geometry');
+  assert.ok(Math.abs(nestedItem.geometry.length - 60) < 1e-6,
+    `CypNest quantity length: expected 60, got ${nestedItem.geometry.length}`);
+  assert.equal(nestedItem.geometry.entities, 2);
+  console.log('PASS synthetic CypNest nested parts and quantity');
 }
 
 testSyntheticCypCutArchive().then(() => {
