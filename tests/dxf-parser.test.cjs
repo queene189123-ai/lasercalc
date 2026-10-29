@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 
 const html = fs.readFileSync(new URL('../index.html', `file://${__filename}`), 'utf8');
-const scriptMatch = html.match(/<script>([\\s\\S]*?)<\\/script>/);
+const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/);
 assert.ok(scriptMatch, 'main script must exist');
 assert.doesNotThrow(() => new vm.Script(scriptMatch[1]), 'main script must have valid JavaScript syntax');
 console.log('PASS main script syntax');
