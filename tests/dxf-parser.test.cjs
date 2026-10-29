@@ -149,18 +149,10 @@ async function testSyntheticCypCutArchive() {
   assert.equal(item.geometry.entities, 1);
   console.log('PASS synthetic CypCut/LXDS ZIP import');
 
-  const nestedGeometry = Buffer.alloc(256);
-  nestedGeometry.writeUInt32LE(1, 80);
-  nestedGeometry.writeUInt32LE(4, 84);
-  [[0, 0], [10, 0], [10, 5], [0, 5]].forEach(([x, y], index) => {
-    const offset = 88 + index * 32;
-    nestedGeometry.writeDoubleLE(x, offset + 4);
-    nestedGeometry.writeDoubleLE(y, offset + 12);
-    nestedGeometry.writeDoubleLE(0, offset + 20);
-  });
+  const nestedGeometry = Buffer.alloc(128);
   const nestedArchive = storedZip({
-    'Shapes2D/content.xml': '<Shapes><LwPolyline Handle="P1" GeoAddr="0"/></Shapes>',
-    'Nest2D/Parts/content.xml': '<Parts><NestPart AmountUsed="2"><Shape Handle="P1"/></NestPart></Parts>',
+    'Shapes2D/content.xml': '<Shapes/>',
+    'Nest2D/Parts/content.xml': '<Parts><NestPart AmountUsed="2" ShapeCls="LwPolyline"><LwPolyline PolyFlag="1"><Point X="0" Y="0"/><Point X="10" Y="0"/><Point X="10" Y="5"/><Point X="0" Y="5"/></LwPolyline></NestPart></Parts>',
     'Blocks/content.xml': '<Blocks/>',
     'Geometry2D/data.bin': nestedGeometry,
   });
@@ -173,7 +165,7 @@ async function testSyntheticCypCutArchive() {
   assert.ok(Math.abs(nestedItem.geometry.length - 60) < 1e-6,
     `CypNest quantity length: expected 60, got ${nestedItem.geometry.length}`);
   assert.equal(nestedItem.geometry.entities, 2);
-  console.log('PASS synthetic CypNest nested parts and quantity');
+  console.log('PASS inline CypNest contours and quantity');
 }
 
 testSyntheticCypCutArchive().then(() => {
