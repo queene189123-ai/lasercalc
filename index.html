@@ -572,6 +572,7 @@ function calculate(){
  $('price').textContent=money(total);$('resultCaption').textContent='Оценка по '+usable.length+' файлам с учётом количества.';$('length').textContent=lenM.toLocaleString('ru-RU',{maximumFractionDigits:2})+' м';$('pierces').textContent='≈ '+pierces;
  $('time').textContent=totalMin<1?Math.round(totalMin*60)+' сек':(Math.floor(totalMin/60)?Math.floor(totalMin/60)+' ч ':'')+Math.round(totalMin%60)+' мин';$('workCost').textContent=money(work*(1+markup/100));$('materialPrice').textContent=money(materialCost);$('materialRow').classList.toggle('hidden',!$('includeMaterial').checked);$('hourlyDisplay').textContent=money(num($('hourly').value,6000))+'/ч';
  if(selectedMode)$('resultCaption').textContent+=' Скорость взята из стартовой базы ('+selectedMode.speedMinMMin+'–'+selectedMode.speedMaxMMin+' м/мин; '+selectedMode.source+'). Значение предварительное.';else $('resultCaption').textContent+=' Для выбранной комбинации нет точной строки в базе: использована грубая формула.';
+ $('resultCaption').textContent+=' Пробивки оценены по числу распознанных геометрических объектов, а не по реальной CAM-траектории; для DXF с отдельными отрезками это может завышать время.';
  if(g.unsupported)$('resultCaption').textContent+=' Есть неподдерживаемые объекты, оценка может быть неполной.';
  if(parsed.some(x=>x.item.geometry))$('resultCaption').textContent+=' Из LXDS/LXD извлечены геометрические контуры; CAM-операции не учитываются.';
 }
