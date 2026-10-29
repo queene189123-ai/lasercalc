@@ -18,7 +18,7 @@
 <section class="card">
 <h2 class="section-title">1. Чертёж</h2>
 <div class="upload" id="dropzone" role="button" tabindex="0" aria-label="Загрузить DXF-файл"><div><div class="upload-icon">↑</div><strong>Перетащите DXF сюда</strong><small>или <button type="button" class="link-button" id="browse">выберите файл</button> на компьютере</small></div></div>
-<input type="file" id="file" accept=".dxf,.lxd,.lxds,.nrp,.nrp2,.pdf,.zip" multiple hidden>
+<input type="file" id="file" accept=".dxf,.lxd,.lxds" multiple hidden>
 <div class="file-status" id="fileStatus">DXF, LXD/LXDS, NRP/NRP2 или несколько DXF-файлов</div><div id="fileList" class="file-list"></div><div id="importNotice" class="import-notice hidden" role="status"></div>
 <div class="fields">
 <div class="field"><label for="material">Материал</label><select id="material"><option value="steel">Чёрная сталь</option><option value="stainless">Нержавеющая сталь</option><option value="aluminum">Алюминий</option></select></div>
@@ -464,7 +464,7 @@ input.addEventListener('change',()=>{Array.from(input.files||[]).forEach(readFil
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
 drop.addEventListener('drop',e=>{Array.from(e.dataTransfer.files||[]).forEach(readFile)});
 function readFile(file){
- const ext=(file.name.split('.').pop()||'').toLowerCase(),allowed=['dxf','lxd','lxds','nrp','nrp2','pdf','zip'];
+ const ext=(file.name.split('.').pop()||'').toLowerCase(),allowed=['dxf','lxd','lxds'];
  if(!allowed.includes(ext)){$('fileStatus').textContent='Формат .'+ext+' пока не поддерживается.';return}
  if(file.size>50*1024*1024){$('fileStatus').textContent='Файл больше 50 МБ.';return}
  if(uploadedFiles.some(x=>x.name===file.name&&x.size===file.size))return;
@@ -473,6 +473,42 @@ function readFile(file){
  else if(ext==='lxds'||ext==='lxd'){readCypFile(item).then(renderFiles).catch(err=>{item.parseError=err.message||'Ошибка разбора';renderFiles()})}
  renderFiles();
 }
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderFiles(){
+ const list=$('fileList'),notice=$('importNotice');
+ list.innerHTML=uploadedFiles.map(x=>'<div class="file-item"><div><strong>'+esc(x.name)+'</strong><small>'+(x.geometry?esc(x.geometry.format)+' · '+(x.geometry.length/1000).toLocaleString('ru-RU',{maximumFractionDigits:2})+' м'+(x.geometry.unsupported?' · неподдерживаемые объекты: '+x.geometry.unsupported:''):x.text!==null?'DXF загружен':x.parseError?'Ошибка импорта':'Чтение файла…')+'</small></div><input aria-label="Количество деталей '+esc(x.name)+'" type="number" min="1" step="1" value="'+Math.max(1,Math.floor(Number(x.qty)||1))+'" data-qty="'+x.id+'"><button type="button" class="file-remove" data-remove="'+x.id+'" aria-label="Удалить '+esc(x.name)+'">×</button></div>').join('');
+ list.querySelectorAll('[data-qty]').forEach(el=>el.addEventListener('change',()=>{const x=uploadedFiles.find(y=>String(y.id)===el.dataset.qty);if(x){x.qty=Math.max(1,Math.floor(Number(el.value)||1));el.value=x.qty;}}));
+ list.querySelectorAll('[data-remove]').forEach(el=>el.addEventListener('click',()=>{uploadedFiles=uploadedFiles.filter(x=>String(x.id)!==el.dataset.remove);renderFiles();$('price').textContent='— ₽';$('resultCaption').textContent='Нажмите «Рассчитать стоимость» после изменения списка файлов.'}));
+ const errors=uploadedFiles.filter(x=>x.parseError);
+ notice.classList.toggle('hidden',!errors.length);
+ notice.textContent=errors.length?'Не удалось прочитать: '+errors.map(x=>x.name+': '+x.parseError).join(' · '):'';
+ $('fileStatus').textContent=uploadedFiles.length?'Файлов: '+uploadedFiles.length+'. Укажите количество деталей в каждом файле.':'Поддерживаются DXF и файлы CypCut/CypNest LXD/LXDS.';
+}
+function parseDxf(text){
+ const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/),pairs=[];
+ for(let i=0;i+1<lines.length;i+=2)pairs.push({c:lines[i].trim(),v:lines[i+1].trim()});
+ let length=0,entities=0,unsupported=0;
+ const val=(a,c,d=0)=>{const p=a.find(x=>x.c===String(c));const n=p?Number(p.v):d;return Number.isFinite(n)?n:d};
+ const add=(n)=>{if(Number.isFinite(n)&&n>1e-7){length+=n;entities++}else unsupported++};
+ for(let i=0;i<pairs.length;){
+  if(pairs[i].c!=='0'){i++;continue}
+  const type=pairs[i].v.toUpperCase();let j=i+1;while(j<pairs.length&&pairs[j].c!=='0')j++;
+  const a=pairs.slice(i+1,j);
+  if(type==='LINE'){add(Math.hypot(val(a,11)-val(a,10),val(a,21)-val(a,20)))}
+  else if(type==='CIRCLE'){const r=Math.abs(val(a,40));if(r>0)add(2*Math.PI*r);else unsupported++}
+  else if(type==='ARC'){const r=Math.abs(val(a,40)),start=val(a,50)*Math.PI/180,end=val(a,51)*Math.PI/180;let d=(end-start+Math.PI*2)%(Math.PI*2);if(r>0&&d>0)add(r*d);else unsupported++}
+  else if(type==='LWPOLYLINE'){
+   const pts=[];let p=null;for(const q of a){if(q.c==='10'){p={x:Number(q.v),y:0,b:0};pts.push(p)}else if(q.c==='20'&&p)p.y=Number(q.v);else if(q.c==='42'&&p)p.b=Number(q.v)}
+   if(pts.length<2){unsupported++}else{let l=0;for(let k=0;k<pts.length-1;k++){const u=pts[k].b,c=Math.hypot(pts[k+1].x-pts[k].x,pts[k+1].y-pts[k].y);l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}if((val(a,70)&1)!==0){const u=pts[pts.length-1].b,c=Math.hypot(pts[0].x-pts[pts.length-1].x,pts[0].y-pts[pts.length-1].y);l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}add(l)}
+  }else if(type==='POLYLINE'){
+   const pts=[];let k=j;while(k<pairs.length&&pairs[k].c==='0'&&pairs[k].v.toUpperCase()==='VERTEX'){let e=k+1;while(e<pairs.length&&pairs[e].c!=='0')e++;const va=pairs.slice(k+1,e);pts.push({x:val(va,10),y:val(va,20),b:val(va,42)});k=e}const closed=(val(a,70)&1)!==0;if(pts.length>=2){let l=0;for(let n=0;n<pts.length-(closed?0:1);n++){const p1=pts[n],p2=pts[(n+1)%pts.length],u=p1.b,c=Math.hypot(p2.x-p1.x,p2.y-p1.y);l+=Math.abs(u)<1e-9?c:c*(1+u*u)*Math.abs(Math.atan(u))/Math.abs(u)}add(l)}else unsupported++;i=k;continue
+  }else if(['POINT','TEXT','MTEXT','DIMENSION','INSERT','SPLINE','ELLIPSE','HATCH','SOLID','3DFACE','TRACE','RAY','XLINE'].includes(type))unsupported++;
+  i=j;
+ }
+ return {length,entities,unsupported};
+}
+
 async function unzipEntries(buffer){
  const b=new Uint8Array(buffer),v=new DataView(buffer);let end=-1;
  for(let i=b.length-22;i>=Math.max(0,b.length-65557);i--){if(v.getUint32(i,true)===0x06054b50){end=i;break}}
