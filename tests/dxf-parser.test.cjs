@@ -136,7 +136,7 @@ async function testSyntheticCypCutArchive() {
   const unzipEnd = html.indexOf('function speed(', unzipStart);
   assert.ok(unzipStart >= 0 && unzipEnd > unzipStart, 'LXDS parser functions must exist');
   const cypSource = html.slice(unzipStart, unzipEnd) + '\nthis.readCypFile = readCypFile;';
-  const cypContext = {};
+  const cypContext = { TextDecoder, Uint8Array, DataView, Blob, Response, DecompressionStream };
   vm.runInNewContext(cypSource, cypContext);
   const item = {
     file: { arrayBuffer: async () => archive.buffer.slice(archive.byteOffset, archive.byteOffset + archive.byteLength) },
