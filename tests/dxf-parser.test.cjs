@@ -152,7 +152,7 @@ async function testSyntheticCypCutArchive() {
   const nestedGeometry = Buffer.alloc(128);
   const nestedArchive = storedZip({
     'Shapes2D/content.xml': '<Shapes/>',
-    'Nest2D/Parts/content.xml': '<Parts><NestPart AmountUsed="2" ShapeCls="LwPolyline"><LwPolyline PolyFlag="1"><Point X="0" Y="0"/><Point X="10" Y="0"/><Point X="10" Y="5"/><Point X="0" Y="5"/></LwPolyline></NestPart></Parts>',
+    'Nest2D/Parts/content.xml': '<Parts><NestPart AmountUsed="2" ShapeCls="LwPolyline"><LwPolyline PolyFlag="1"><Point X="10" Y="0"/><Point X="10" Y="5"/><Point Y="5"/><Point Y="0"/></LwPolyline></NestPart></Parts>',
     'Blocks/content.xml': '<Blocks/>',
     'Geometry2D/data.bin': nestedGeometry,
   });
