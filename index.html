@@ -486,8 +486,18 @@ function renderFiles(){
  $('fileStatus').textContent=uploadedFiles.length?'Файлов: '+uploadedFiles.length+'. Укажите количество деталей в каждом файле.':'Поддерживаются DXF и файлы CypCut/CypNest LXD/LXDS.';
 }
 function parseDxf(text){
- const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/),pairs=[];
- for(let i=0;i+1<lines.length;i+=2)pairs.push({c:lines[i].trim(),v:lines[i+1].trim()});
+ const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/),all=[];
+ for(let i=0;i+1<lines.length;i+=2)all.push({c:lines[i].trim(),v:lines[i+1].trim()});
+ let pairs=[],inside=false,found=false;
+ for(let i=0;i<all.length;i++){
+  const q=all[i];
+  if(q.c==='0'&&q.v.toUpperCase()==='SECTION'&&all[i+1]?.c==='2'){
+   inside=all[i+1].v.toUpperCase()==='ENTITIES';if(inside)found=true;i++;continue;
+  }
+  if(inside&&q.c==='0'&&q.v.toUpperCase()==='ENDSEC'){inside=false;continue}
+  if(inside)pairs.push(q);
+ }
+ if(!found)pairs=all;
  let length=0,entities=0,unsupported=0;
  const val=(a,c,d=0)=>{const p=a.find(x=>x.c===String(c));const n=p?Number(p.v):d;return Number.isFinite(n)?n:d};
  const add=(n)=>{if(Number.isFinite(n)&&n>1e-7){length+=n;entities++}else unsupported++};
