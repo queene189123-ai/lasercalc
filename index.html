@@ -49,10 +49,295 @@
 <div class="notice">* Количество пробивок оценивается приблизительно по числу элементов DXF. Фактическая траектория, врезки, общие резы и порядок обработки зависят от CAM-программы. Не используйте оценку как подтверждённый производственный норматив без проверки.</div>
 </aside>
 </div>
-<p class="bottom-note">Чертёж обрабатывается в браузере на этом прототипе. Файл не отправляется на сервер. Сейчас расчёт использует ориентировочные скорости, а не подтверждённую базу технологических режимов.</p>
+<p class="bottom-note">Чертёж обрабатывается в браузере на этом прототипе. Файл не отправляется на сервер. Стартовая база режимов подключена для отдельных комбинаций 3 кВт. Для остальных комбинаций используется грубая оценочная формула; значения требуют проверки на станке.</p>
 </main><footer>LaserCalc · Калькулятор стоимости лазерной резки</footer>
 <script>
-const $=id=>document.getElementById(id);let uploadedFiles=[];
+const $=id=>document.getElementById(id);let uploadedFiles=[],selectedMode=null;
+const CUT_MODE_DB={
+  "schemaVersion": 1,
+  "title": "LaserCalc preliminary cutting-mode database",
+  "machineProfile": {
+    "laserType": "fiber",
+    "referencePowerW": 3000,
+    "controller": "CypCut",
+    "referenceMachine": "HSG 3000 W"
+  },
+  "units": {
+    "speed": "m/min",
+    "pressure": "bar",
+    "focus": "mm",
+    "nozzleDiameter": "mm",
+    "pierceTime": "s"
+  },
+  "notes": [
+    "Values are starting points for estimating, not production-ready instructions.",
+    "LaserLandServis /cutmodes exposes a catalogue, but its detailed numerical tables could not be retrieved in this session; these records are averaged from publicly indexed reference tables, not claimed to be extracted from LaserLandServis.",
+    "Use only the material/gas/power/thickness combinations listed. Missing combinations must not be silently treated as validated.",
+    "Validate on the actual HSG 3000 W, optical setup, nozzle, sheet grade, gas purity and pressure."
+  ],
+  "sources": [
+    {
+      "name": "Laser Legend / LaserLandServis",
+      "url": "https://laserlandservis.ru/cutmodes",
+      "role": "Requested primary catalogue; numeric rows still need import/verification"
+    },
+    {
+      "name": "Механит — таблица подбора мощности",
+      "url": "https://mehanit.ru/press/tablica-podbora-moschnosti-lazernogo-istochnika",
+      "role": "Black steel speed ranges; midpoint values used where a 3 kW row is available"
+    },
+    {
+      "name": "ГОСТ Р 72479-2025",
+      "url": "https://normadocs.ru/gost_r_72479-2025",
+      "role": "Reference speeds for carbon steel with oxygen and stainless steel with nitrogen"
+    },
+    {
+      "name": "LaserGU — ключевые параметры резки",
+      "url": "https://lasergu.ru/novosti-akcii/parametry_lazernoy_rezki_metalla/",
+      "role": "Supplementary reference ranges for stainless steel and aluminium"
+    }
+  ],
+  "records": [
+    {
+      "material": "steel",
+      "grade": "Q235A / low-carbon steel reference",
+      "thicknessMm": 1,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 30,
+      "speedMaxMMin": 40,
+      "speedMMin": 35,
+      "confidence": "low",
+      "source": "mehanit.ru",
+      "note": "Unusually high compared with many shop-floor tables; verify before using."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 2,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 4.8,
+      "speedMaxMMin": 7.5,
+      "speedMMin": 6.15,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 3,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 3.3,
+      "speedMaxMMin": 5,
+      "speedMMin": 4.15,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 4,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 3,
+      "speedMaxMMin": 4.2,
+      "speedMMin": 3.6,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 5,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 2.6,
+      "speedMaxMMin": 3.5,
+      "speedMMin": 3.05,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 6,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 2.3,
+      "speedMaxMMin": 3.2,
+      "speedMMin": 2.75,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 8,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 1.8,
+      "speedMaxMMin": 2.6,
+      "speedMMin": 2.2,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 10,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 1.2,
+      "speedMaxMMin": 2,
+      "speedMMin": 1.6,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 12,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 1,
+      "speedMaxMMin": 1.6,
+      "speedMMin": 1.3,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 14,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.9,
+      "speedMaxMMin": 1.4,
+      "speedMMin": 1.15,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 16,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.7,
+      "speedMaxMMin": 1,
+      "speedMMin": 0.85,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 18,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.6,
+      "speedMaxMMin": 0.8,
+      "speedMMin": 0.7,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 20,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.5,
+      "speedMaxMMin": 0.8,
+      "speedMMin": 0.65,
+      "confidence": "medium",
+      "source": "mehanit.ru"
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 4,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 5.5,
+      "speedMaxMMin": 7.5,
+      "speedMMin": 6.5,
+      "confidence": "low",
+      "source": "normadocs.ru / GOST R 72479-2025",
+      "note": "Reference value; pressure and grade are not represented in this first schema."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 5,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 1,
+      "speedMaxMMin": 1.5,
+      "speedMMin": 1.25,
+      "confidence": "low",
+      "source": "lasergu.ru",
+      "note": "Published range is a broad reference and may not match every 3 kW machine."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 6,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 2.2,
+      "speedMaxMMin": 3.2,
+      "speedMMin": 2.7,
+      "confidence": "low",
+      "source": "normadocs.ru / GOST R 72479-2025"
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 8,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 1,
+      "speedMaxMMin": 1.4,
+      "speedMMin": 1.2,
+      "confidence": "low",
+      "source": "normadocs.ru / GOST R 72479-2025"
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 1,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 4,
+      "speedMaxMMin": 6,
+      "speedMMin": 5,
+      "confidence": "low",
+      "source": "lasergu.ru",
+      "note": "Reference band; confirm alloy and surface condition."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 3,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 1.5,
+      "speedMaxMMin": 2.5,
+      "speedMMin": 2,
+      "confidence": "low",
+      "source": "lasergu.ru"
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 4,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 3.5,
+      "speedMaxMMin": 5.5,
+      "speedMMin": 4.5,
+      "confidence": "low",
+      "source": "ses24.ru",
+      "note": "Range corresponds to 3–4 kW equipment; midpoint is a rough 3 kW starting value."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 6,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 0.8,
+      "speedMaxMMin": 1.5,
+      "speedMMin": 1.15,
+      "confidence": "low",
+      "source": "lasergu.ru",
+      "note": "Range corresponds to 3–4 kW equipment; midpoint is a rough 3 kW starting value."
+    }
+  ]
+};
 const drop=$('dropzone'), input=$('file');
 $('browse').addEventListener('click',e=>{e.stopPropagation();input.click()});
 drop.addEventListener('click',e=>{if(e.target.id!=='browse')input.click()});
@@ -117,9 +402,11 @@ function parseDxf(text){
  return {length:total,entities:count,unsupported};
 }
 function speed(material,thickness,power,gas){
- const t=Math.max(.5,num(thickness,1)),p=num(power,3000);
- const base=material==='steel'? (gas==='oxygen'? 4200:gas==='air'?3000:1800):material==='stainless'?(gas==='nitrogen'?3600:gas==='air'?2000:1100):(gas==='nitrogen'?3000:gas==='air'?2200:800);
- return Math.max(120,base*(p/3000)**.62/Math.pow(t,.72));
+ const t=num(thickness,1),p=num(power,3000);
+ selectedMode=CUT_MODE_DB.records.find(r=>r.material===material&&r.gas===gas&&r.powerW===p&&Math.abs(r.thicknessMm-t)<0.001)||null;
+ if(selectedMode)return selectedMode.speedMMin*1000;
+ const base=material==='steel'?(gas==='oxygen'?4200:gas==='air'?3000:1800):material==='stainless'?(gas==='nitrogen'?3600:gas==='air'?2000:1100):(gas==='nitrogen'?3000:gas==='air'?2200:800);
+ return Math.max(120,base*(p/3000)**.62/Math.pow(Math.max(.5,t),.72));
 }
 function money(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
 function calculate(){
@@ -138,6 +425,7 @@ function calculate(){
  $('length').textContent=lenM.toLocaleString('ru-RU',{maximumFractionDigits:2})+' м';$('pierces').textContent='≈ '+pierces;
  $('time').textContent=totalMin<1?Math.round(totalMin*60)+' сек':(Math.floor(totalMin/60)?Math.floor(totalMin/60)+' ч ':'')+Math.round(totalMin%60)+' мин';
  $('workCost').textContent=money(work*(1+markup/100));$('materialPrice').textContent=money(materialCost);$('materialRow').classList.toggle('hidden',!$('includeMaterial').checked);$('hourlyDisplay').textContent=money(num($('hourly').value,6000))+'/ч';
+ if(selectedMode)$('resultCaption').textContent+=' Скорость взята из стартовой базы ('+selectedMode.speedMinMMin+'–'+selectedMode.speedMaxMMin+' м/мин; источник: '+selectedMode.source+'). Значение предварительное.';else $('resultCaption').textContent+=' Для выбранной комбинации нет точной строки в базе: использована грубая формула, точность ниже.';
  if(g.unsupported)$('resultCaption').textContent+=' Есть неподдерживаемые объекты, оценка может быть неполной.';
  if(uploadedFiles.some(x=>['lxd','lxds','nrp','nrp2'].includes(x.ext))) $('resultCaption').textContent+=' В расчёт вошли только DXF; технологические файлы пока не разобраны.';
 }
