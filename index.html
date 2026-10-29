@@ -493,7 +493,7 @@ async function readCypFile(item){
  try{
   const z=await unzipEntries(await item.file.arrayBuffer()),txt=n=>z[n]?new TextDecoder().decode(z[n]):'',sx=txt('Shapes2D/content.xml'),mx=txt('Model2D/content.xml'),bin=z['Geometry2D/data.bin'];
   if(!sx||!mx||!bin)throw Error('Не найдены ожидаемые блоки геометрии CypCut.');
-  const model=new Set(xmlTags(mx,'Shape').map(x=>x.Handle).filter(Boolean)),shapes=xmlTags(sx,'(Circle|LwPolyline|Arc|Line|Ellipse|Spline)'),v=new DataView(bin.buffer,bin.byteOffset,bin.byteLength);let length=0,entities=0,unsupported=0;
+  const model=new Set(xmlTags(mx,'Shape').map(x=>x.Handle).filter(Boolean)),shapes=xmlTags(sx,'(?:Circle|LwPolyline|Arc|Line|Ellipse|Spline)'),v=new DataView(bin.buffer,bin.byteOffset,bin.byteLength);let length=0,entities=0,unsupported=0;
   for(const s of shapes){
    if(s.Handle&&!model.has(s.Handle))continue;const off=Number(s.GeoAddr);if(!Number.isFinite(off)||off<0||off+100>v.byteLength){unsupported++;continue}
    const type=s.__tag||s.Class||'';
