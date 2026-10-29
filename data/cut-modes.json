@@ -15,79 +15,64 @@
     "pierceTime": "s"
   },
   "notes": [
-    "Values are starting points for estimating, not production-ready instructions.",
-    "LaserLandServis /cutmodes exposes a catalogue, but its detailed numerical tables could not be retrieved in this session; these records are averaged from publicly indexed reference tables, not claimed to be extracted from LaserLandServis.",
-    "Use only the material/gas/power/thickness combinations listed. Missing combinations must not be silently treated as validated.",
-    "Validate on the actual HSG 3000 W, optical setup, nozzle, sheet grade, gas purity and pressure."
+    "This is a preliminary reference database, not a production-ready technology library.",
+    "Speeds are approximate central values based on overlapping published 3 kW tables where available; ranges preserve source variation. They are not a statistical average across fully matched machines.",
+    "The LaserLandServis /cutmodes numeric rows could not be retrieved in this session. No record is falsely attributed to that site.",
+    "Published tables differ in source, fiber core, optics, head, nozzle, gas purity/pressure, material grade and quality target. Compare only matching gas and thickness records.",
+    "Only exact material/thickness/power/gas combinations in records are explicit database entries. Missing combinations must not be treated as validated.",
+    "The calculator's selected speed estimates only straight cutting time; pierces, leads, acceleration, corners, rapid moves and CAM sequence still need calibration from CypCut and actual machine time."
   ],
   "sources": [
     {
       "name": "Laser Legend / LaserLandServis",
       "url": "https://laserlandservis.ru/cutmodes",
-      "role": "Requested primary catalogue; numeric rows still need import/verification"
+      "role": "Requested primary source; detailed numeric rows have not yet been retrieved"
     },
     {
-      "name": "Механит — таблица подбора мощности",
-      "url": "https://mehanit.ru/press/tablica-podbora-moschnosti-lazernogo-istochnika",
-      "role": "Black steel speed ranges; midpoint values used where a 3 kW row is available"
+      "name": "SIEME Laser",
+      "url": "https://www.siemelaser.com/news/3kw-fiber-laser-cutting-parameters.html",
+      "role": "3 kW reference speeds for carbon steel, stainless steel and aluminium; includes optics/gas caveats"
     },
     {
-      "name": "ГОСТ Р 72479-2025",
-      "url": "https://normadocs.ru/gost_r_72479-2025",
-      "role": "Reference speeds for carbon steel with oxygen and stainless steel with nitrogen"
+      "name": "SBMachines",
+      "url": "https://sbmlaser.com/our-services/cutting-parameters/",
+      "role": "3 kW reference table with speed, gas pressure, nozzle, focus and height"
     },
     {
-      "name": "LaserGU — ключевые параметры резки",
-      "url": "https://lasergu.ru/novosti-akcii/parametry_lazernoy_rezki_metalla/",
-      "role": "Supplementary reference ranges for stainless steel and aluminium"
+      "name": "Raycut",
+      "url": "https://raycut.co.za/parameters",
+      "role": "Supplementary Raycus-source reference database; 3 kW profile"
+    },
+    {
+      "name": "Alpha SF 3015H",
+      "url": "https://portalimages.blob.core.windows.net/products/pdfs/czuaaigb_AlphaSF3015HFiberLaserCuttingMachine.pdf",
+      "role": "3 kW parameter PDF with carbon steel, stainless steel and aluminium speeds"
     }
   ],
   "records": [
     {
       "material": "steel",
-      "grade": "Q235A / low-carbon steel reference",
-      "thicknessMm": 1,
-      "powerW": 3000,
-      "gas": "oxygen",
-      "speedMinMMin": 30,
-      "speedMaxMMin": 40,
-      "speedMMin": 35,
-      "confidence": "low",
-      "source": "mehanit.ru",
-      "note": "Unusually high compared with many shop-floor tables; verify before using."
-    },
-    {
-      "material": "steel",
-      "thicknessMm": 2,
-      "powerW": 3000,
-      "gas": "oxygen",
-      "speedMinMMin": 4.8,
-      "speedMaxMMin": 7.5,
-      "speedMMin": 6.15,
-      "confidence": "medium",
-      "source": "mehanit.ru"
-    },
-    {
-      "material": "steel",
       "thicknessMm": 3,
       "powerW": 3000,
       "gas": "oxygen",
-      "speedMinMMin": 3.3,
-      "speedMaxMMin": 5,
-      "speedMMin": 4.15,
+      "speedMinMMin": 3.2,
+      "speedMaxMMin": 4.1,
+      "speedMMin": 3.9,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
       "thicknessMm": 4,
       "powerW": 3000,
       "gas": "oxygen",
-      "speedMinMMin": 3,
-      "speedMaxMMin": 4.2,
-      "speedMMin": 3.6,
+      "speedMinMMin": 3.4,
+      "speedMaxMMin": 3.6,
+      "speedMMin": 3.5,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
@@ -96,9 +81,10 @@
       "gas": "oxygen",
       "speedMinMMin": 2.6,
       "speedMaxMMin": 3.5,
-      "speedMMin": 3.05,
-      "confidence": "medium",
-      "source": "mehanit.ru"
+      "speedMMin": 3.1,
+      "confidence": "low",
+      "source": "SBMachines; Raycut",
+      "note": "5 mm reference values vary by source and setup."
     },
     {
       "material": "steel",
@@ -106,10 +92,11 @@
       "powerW": 3000,
       "gas": "oxygen",
       "speedMinMMin": 2.3,
-      "speedMaxMMin": 3.2,
-      "speedMMin": 2.75,
+      "speedMaxMMin": 2.8,
+      "speedMMin": 2.7,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
@@ -117,10 +104,11 @@
       "powerW": 3000,
       "gas": "oxygen",
       "speedMinMMin": 1.8,
-      "speedMaxMMin": 2.6,
+      "speedMaxMMin": 2.3,
       "speedMMin": 2.2,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
@@ -128,32 +116,35 @@
       "powerW": 3000,
       "gas": "oxygen",
       "speedMinMMin": 1.2,
-      "speedMaxMMin": 2,
-      "speedMMin": 1.6,
+      "speedMaxMMin": 1.6,
+      "speedMMin": 1.5,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
       "thicknessMm": 12,
       "powerW": 3000,
       "gas": "oxygen",
-      "speedMinMMin": 1,
-      "speedMaxMMin": 1.6,
-      "speedMMin": 1.3,
+      "speedMinMMin": 0.9,
+      "speedMaxMMin": 1.1,
+      "speedMMin": 1.05,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
       "thicknessMm": 14,
       "powerW": 3000,
       "gas": "oxygen",
-      "speedMinMMin": 0.9,
-      "speedMaxMMin": 1.4,
-      "speedMMin": 1.15,
+      "speedMinMMin": 0.8,
+      "speedMaxMMin": 0.95,
+      "speedMMin": 0.9,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
@@ -161,10 +152,11 @@
       "powerW": 3000,
       "gas": "oxygen",
       "speedMinMMin": 0.7,
-      "speedMaxMMin": 1,
-      "speedMMin": 0.85,
+      "speedMaxMMin": 0.85,
+      "speedMMin": 0.8,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
@@ -172,10 +164,11 @@
       "powerW": 3000,
       "gas": "oxygen",
       "speedMinMMin": 0.6,
-      "speedMaxMMin": 0.8,
+      "speedMaxMMin": 0.72,
       "speedMMin": 0.7,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "steel",
@@ -183,45 +176,107 @@
       "powerW": 3000,
       "gas": "oxygen",
       "speedMinMMin": 0.5,
-      "speedMaxMMin": 0.8,
-      "speedMMin": 0.65,
+      "speedMaxMMin": 0.65,
+      "speedMMin": 0.6,
       "confidence": "medium",
-      "source": "mehanit.ru"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 22,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.5,
+      "speedMaxMMin": 0.55,
+      "speedMMin": 0.525,
+      "confidence": "low",
+      "source": "SIEME; SBMachines",
+      "note": "Published data is sparse at this thickness."
+    },
+    {
+      "material": "steel",
+      "thicknessMm": 25,
+      "powerW": 3000,
+      "gas": "oxygen",
+      "speedMinMMin": 0.45,
+      "speedMaxMMin": 0.5,
+      "speedMMin": 0.475,
+      "confidence": "low",
+      "source": "SIEME",
+      "note": "Single-source reference; production stability must be verified."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 1,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 40,
+      "speedMaxMMin": 53,
+      "speedMMin": 46.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 2,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 22,
+      "speedMaxMMin": 25,
+      "speedMMin": 23.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 3,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 8.5,
+      "speedMaxMMin": 12,
+      "speedMMin": 10.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "stainless",
       "thicknessMm": 4,
       "powerW": 3000,
       "gas": "nitrogen",
-      "speedMinMMin": 5.5,
-      "speedMaxMMin": 7.5,
-      "speedMMin": 6.5,
-      "confidence": "low",
-      "source": "normadocs.ru / GOST R 72479-2025",
-      "note": "Reference value; pressure and grade are not represented in this first schema."
+      "speedMinMMin": 6,
+      "speedMaxMMin": 8,
+      "speedMMin": 6.75,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "stainless",
       "thicknessMm": 5,
       "powerW": 3000,
       "gas": "nitrogen",
-      "speedMinMMin": 1,
-      "speedMaxMMin": 1.5,
-      "speedMMin": 1.25,
+      "speedMinMMin": 3.6,
+      "speedMaxMMin": 4.5,
+      "speedMMin": 4.05,
       "confidence": "low",
-      "source": "lasergu.ru",
-      "note": "Published range is a broad reference and may not match every 3 kW machine."
+      "source": "SBMachines; Raycut",
+      "note": "Only limited directly comparable 3 kW sources."
     },
     {
       "material": "stainless",
       "thicknessMm": 6,
       "powerW": 3000,
       "gas": "nitrogen",
-      "speedMinMMin": 2.2,
-      "speedMaxMMin": 3.2,
-      "speedMMin": 2.7,
-      "confidence": "low",
-      "source": "normadocs.ru / GOST R 72479-2025"
+      "speedMinMMin": 2.5,
+      "speedMaxMMin": 3.1,
+      "speedMMin": 2.8,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "stainless",
@@ -229,57 +284,119 @@
       "powerW": 3000,
       "gas": "nitrogen",
       "speedMinMMin": 1,
-      "speedMaxMMin": 1.4,
+      "speedMaxMMin": 1.3,
       "speedMMin": 1.2,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 10,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 0.75,
+      "speedMaxMMin": 0.8,
+      "speedMMin": 0.775,
       "confidence": "low",
-      "source": "normadocs.ru / GOST R 72479-2025"
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Some sources flag 10 mm as sample/non-production; verify before use."
+    },
+    {
+      "material": "stainless",
+      "thicknessMm": 12,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 0.5,
+      "speedMaxMMin": 0.5,
+      "speedMMin": 0.5,
+      "confidence": "low",
+      "source": "SIEME",
+      "note": "Single-source reference; verify feasibility on this machine."
     },
     {
       "material": "aluminum",
       "thicknessMm": 1,
       "powerW": 3000,
       "gas": "nitrogen",
-      "speedMinMMin": 4,
-      "speedMaxMMin": 6,
-      "speedMMin": 5,
-      "confidence": "low",
-      "source": "lasergu.ru",
-      "note": "Reference band; confirm alloy and surface condition."
+      "speedMinMMin": 30,
+      "speedMaxMMin": 43,
+      "speedMMin": 36.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 2,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 16,
+      "speedMaxMMin": 18,
+      "speedMMin": 17,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "aluminum",
       "thicknessMm": 3,
       "powerW": 3000,
       "gas": "nitrogen",
-      "speedMinMMin": 1.5,
-      "speedMaxMMin": 2.5,
-      "speedMMin": 2,
-      "confidence": "low",
-      "source": "lasergu.ru"
+      "speedMinMMin": 7.5,
+      "speedMaxMMin": 10,
+      "speedMMin": 8.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
     },
     {
       "material": "aluminum",
       "thicknessMm": 4,
       "powerW": 3000,
       "gas": "nitrogen",
-      "speedMinMMin": 3.5,
-      "speedMaxMMin": 5.5,
-      "speedMMin": 4.5,
+      "speedMinMMin": 5,
+      "speedMaxMMin": 6,
+      "speedMMin": 5.5,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 5,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 3,
+      "speedMaxMMin": 3.2,
+      "speedMMin": 3.1,
       "confidence": "low",
-      "source": "ses24.ru",
-      "note": "Range corresponds to 3–4 kW equipment; midpoint is a rough 3 kW starting value."
+      "source": "SBMachines; Alpha SF",
+      "note": "Only limited directly comparable 3 kW sources."
     },
     {
       "material": "aluminum",
       "thicknessMm": 6,
       "powerW": 3000,
       "gas": "nitrogen",
-      "speedMinMMin": 0.8,
-      "speedMaxMMin": 1.5,
-      "speedMMin": 1.15,
+      "speedMinMMin": 1.5,
+      "speedMaxMMin": 2,
+      "speedMMin": 1.8,
+      "confidence": "medium",
+      "source": "SIEME; SBMachines; Alpha SF",
+      "note": "Reference value only; validate against the actual HSG 3000 W, optical configuration, nozzle, gas and material grade."
+    },
+    {
+      "material": "aluminum",
+      "thicknessMm": 8,
+      "powerW": 3000,
+      "gas": "nitrogen",
+      "speedMinMMin": 0.6,
+      "speedMaxMMin": 0.9,
+      "speedMMin": 0.7,
       "confidence": "low",
-      "source": "lasergu.ru",
-      "note": "Range corresponds to 3–4 kW equipment; midpoint is a rough 3 kW starting value."
+      "source": "SIEME; SBMachines",
+      "note": "Some sources differ substantially; use as a cautious reference only."
     }
   ]
 }
