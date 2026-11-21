@@ -57,7 +57,7 @@ print:{title:"Печатный комплект",lead:"Распечатайте 
 };
 let current="start";
 function modal(title,body){document.getElementById("modalbody").innerHTML="<h2>"+title+"</h2>"+body;document.getElementById("modal").classList.add("show")}
-function render(key){if(key==="final"&&!localStorage.getItem("case_final_unlocked")){if(localStorage.getItem("arch3")!=="1"){modal("Раздел закрыт",'<p>Сначала последовательно откройте все четыре уровня архива и изучите закрытое распоряжение.</p><button class="btn" id="enterfinal">Понятно</button>');setTimeout(()=>{let b=document.getElementById("enterfinal");if(b)b.onclick=()=>document.getElementById("modal").classList.remove("show")},20);return}modal("Раздел закрыт",'<p>Введите год трагедии, вычисленный по вводной и дате дела.</p><button class="btn" id="enterfinal">Ввести код</button>');setTimeout(()=>{let b=document.getElementById("enterfinal");if(b)b.onclick=()=>{document.getElementById("modal").classList.remove("show");modal("Код доступа",'<p>Введите четырёхзначный код из материалов дела.</p><input id="finalcode" class="field" inputmode="numeric" maxlength="4" placeholder="••••"><div class="actions"><button class="btn" id="unlock">Проверить</button></div><p id="codeerr" class="muted"></p>');document.getElementById("unlock").onclick=()=>{if(document.getElementById("finalcode").value==="2009"){localStorage.setItem("case_final_unlocked","1");document.getElementById("modal").classList.remove("show");render("final")}else document.getElementById("codeerr").textContent="Код не подходит. Проверьте архивные материалы."}}},20);return}
+function render(key){
 current=key;document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===key));let d=tabs[key],p=document.getElementById("pane");p.innerHTML='<h2>'+d.title+'</h2><p class="lead">'+d.lead+'</p>'+d.html;
 if(key==="people")renderPeople(p);if(key==="media")renderMedia(p);if(key==="evidence")renderClues(p);if(key==="puzzles")renderPuzzles(p);if(key==="archive")renderArchive(p);if(key==="timeline")renderTimeline(p);if(key==="map")renderMap(p);if(key==="notebook")renderNotebook(p);if(key==="hints")renderHints(p);if(key==="final")renderFinal(p);if(key==="print")renderPrint(p);
 p.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>render(b.dataset.go));
@@ -83,34 +83,18 @@ function renderMedia(p){
 
 function renderClues(p){p.innerHTML+='<div class="list">'+clues.map((x,i)=>'<div class="record"><small>УЛИКА '+x.n+' · '+x.kind+'</small><strong>'+x.name+'</strong><p>'+x.text+'</p><p><i>'+x.q+'</i></p><label class="checkrow"><input type="checkbox" data-clue="'+i+'" '+(localStorage.getItem("clue"+i)==="1"?"checked":"")+'><span>Изучено</span></label></div>').join("")+'</div>';p.querySelectorAll("[data-clue]").forEach(c=>c.onchange=()=>localStorage.setItem("clue"+c.dataset.clue,c.checked?"1":"0"))}
 function renderArchive(p){
-localStorage.setItem("arch0","1");
-const codes=["","2348","0022","0031"];
 const names=["Общий архив","Технический архив","Архив связи","Закрытое хранилище"];
 const texts=[
-"Журнал поста: 23:48 — проход в техническое крыло; 00:16 — открытие диспетчерской без номера карты; 00:31 — ручной сброс тревоги. Выписка подписана дежурным поста. Код следующего уровня — время повторного прохода, записанное четырьмя цифрами.",
-"Схема: подключение ввода Р-2 создаёт 90-секундное окно без регистрации переключений этого контура. Журнал подрядчика подтверждает подключение в 23:48. На полях указано: «не подключать при активной тревоге». Отдельная запись техжурнала в 00:30: «перемычка X-2 отключена вручную», инициалы А.В. Не путайте подключение Р-2 и отключение X-2. Служебная легенда к схеме диспетчерской: отдельный механический ключ МП-1 открывает крышку локальной панели; дверь разблокируется рычагом панели. МП-1 не является резервным ключом двери. Код следующего уровня — время трёх импульсов на ленте связи.",
-"Лента: три коротких импульса зарегистрированы в 00:22. После паузы канал прерван. В расписании внутренних тестов такой передачи нет. Код следующего уровня — время ручного сброса тревоги.",
-"Содержимое закрытого распоряжения, подписанного Ириной Беловой, 00:14: «Не останавливать экспериментальный стенд до завершения выгрузки. Перевести диспетчерскую на локальный режим. Эвакуацию не начинать без моего подтверждения». Ниже отметка: «предупреждение лаборатории принято 00:08». Это доказывает, что руководитель смены знала об опасности до открытия резервной панели. Последний код архива — год трагедии. Вводная указывает точные даты происшествия и повторного открытия дела."
+"Журнал поста: 23:48 — проход в техническое крыло; 00:16 — открытие диспетчерской без номера карты; 00:31 — ручной сброс тревоги. Выписка подписана дежурным поста.",
+"Схема: подключение ввода Р-2 создаёт 90-секундное окно без регистрации переключений этого контура. Журнал подрядчика подтверждает подключение в 23:48. На полях указано: «не подключать при активной тревоге». Отдельная запись техжурнала в 00:30: «перемычка X-2 отключена вручную», инициалы А.В. Не путайте подключение Р-2 и отключение X-2. Служебная легенда к схеме диспетчерской: отдельный механический ключ МП-1 открывает крышку локальной панели; дверь разблокируется рычагом панели. МП-1 не является резервным ключом двери.",
+"Лента: три коротких импульса зарегистрированы в 00:22. После паузы канал прерван. В расписании внутренних тестов такой передачи нет. Автоматическая метка не устанавливает назначение сигнала и его отправителя.",
+"Содержимое закрытого распоряжения, подписанного Ириной Беловой, 00:14: «Не останавливать экспериментальный стенд до завершения выгрузки. Перевести диспетчерскую на локальный режим. Эвакуацию не начинать без моего подтверждения». Ниже отметка: «предупреждение лаборатории принято 00:08». Серверный реестр отдельно фиксирует доставку в 00:08:32, открытие под учётной записью IB-01 в 00:09:06 и отметку «ознакомлен» в 00:09:41."
 ];
-p.innerHTML+='<div class="cards">'+names.map((name,i)=>'<div class="card"><div class="eyeline">Уровень '+(i+1)+' · '+(i===0||localStorage.getItem("arch"+i)==="1"?"Открыт":"Закрыт")+'</div><h3>'+name+'</h3><p>'+(i===0?"Первичные документы и журнал поста.":i===1?"Схемы резервного питания и технические отметки.":i===2?"Фрагменты внутреннего канала и лента событий.":"Распоряжения руководства и закрытые документы.")+'</p><button class="btn alt" data-open="'+i+'">'+(i===0||localStorage.getItem("arch"+i)==="1"?"Открыть материалы":"Ввести код")+'</button></div>').join("")+'</div><div id="archresult" class="notice">Проходите уровни последовательно. Код каждого следующего уровня находится в предыдущем документе.</div>';
-function show(n){document.getElementById("archresult").innerHTML="<h3>"+names[n]+"</h3><p>"+texts[n]+"</p>"+(n===3?'<p class="muted">Код итогового раздела: год трагедии. Вернитесь к вводной и сопоставьте её с датой дела.</p>':"");}
-p.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{
-const n=+b.dataset.open;
-if(n===0){show(0);return;}
-if(localStorage.getItem("arch"+n)==="1"){show(n);return;}
-if(localStorage.getItem("arch"+(n-1))!=="1"){document.getElementById("archresult").textContent="Сначала откройте предыдущий уровень архива.";return;}
-modal("Доступ: "+names[n],'<p>Введите код из предыдущего документа.</p><input class="field" id="archcode" maxlength="4" inputmode="numeric" placeholder="КОД"><div class="actions"><button class="btn" id="checkarch">Проверить</button></div><p id="archerr" class="muted"></p>');
-document.getElementById("checkarch").onclick=()=>{
-if(document.getElementById("archcode").value===codes[n]){
-localStorage.setItem("arch"+n,"1");
-document.getElementById("modal").classList.remove("show");
-show(n);
-b.textContent="Открыть материалы";
-b.closest(".card").querySelector(".eyeline").textContent="Уровень "+(n+1)+" · Открыт";
-}else document.getElementById("archerr").textContent="Код не подходит. Сверьте время в предыдущих материалах.";
-};
-});
-}function renderPuzzles(p){
+p.innerHTML+='<div class="cards">'+names.map((name,i)=>'<div class="card"><div class="eyeline">Документ '+(i+1)+'</div><h3>'+name+'</h3><p>'+(i===0?"Журнал поста и первичные отметки.":i===1?"Схемы питания, Р-2, X-2 и локальная панель.":i===2?"Лента связи и три зарегистрированных импульса.":"Распоряжение руководителя и отметки уведомления.")+'</p><button class="btn alt" data-open="'+i+'">Открыть документ</button></div>').join("")+'</div><div id="archresult" class="notice">Все документы доступны сразу. Открывайте их в любом порядке и сопоставляйте между собой.</div>';
+function show(n){document.getElementById("archresult").innerHTML="<h3>"+names[n]+"</h3><p>"+texts[n]+"</p>";}
+p.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>show(+b.dataset.open));
+}
+function renderPuzzles(p){
 const tasks=[
 {title:"Задача 1. Часы медблока",desc:"В черновике Анны указано, что часы медблока отставали ровно на 6 минут. В журнале медблока записан интервал 00:24–00:29. Переведите этот интервал на время контрольных часов комплекса.",options:["00:18–00:23","00:24–00:29","00:30–00:35"],correct:2,why:"К показаниям отстающих часов нужно прибавить шесть минут. Значит, медицинские записи относятся к 00:30–00:35 по контрольному времени. Это не опровергает приказ об эвакуации в 00:29: запись о доставке пациентов сделана позже приказа."},
 {title:"Задача 2. Дверь без карты",desc:"В журнале в 00:16 отмечено открытие диспетчерской, но поле карты пустое. Михаил утверждает, что резервные карты не выдавались. На фрагменте плана есть локальная панель с механическим рычагом. Какое объяснение согласуется со всеми тремя фактами?",options:["Журнал точно подделан","Дверь открыли изнутри механическим рычагом локальной панели","Дверь открыли пропуском Павла"],correct:1,why:"Пустое поле карты не означает взлом: дверь открыли механическим рычагом локальной панели. Это объясняет запись и не противоречит словам Михаила о резервных картах."},
