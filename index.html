@@ -112,16 +112,25 @@ function toggleSuspectCatalog(){
  box.style.gap="12px";
  btn.textContent=opening?"Скрыть каталог персонажей":"Открыть каталог персонажей";
  if(opening&&!box.dataset.loaded){
-  box.innerHTML=suspects.map((p,i)=>'<button type="button" class="record" style="display:flex;gap:12px;align-items:center;text-align:left;width:100%;cursor:pointer;color:inherit;background:rgba(255,255,255,.025);border:1px solid var(--line,#514b43)" onclick="checkSuspectAnswer(&quot;'+p.name+'&quot;)"><img class="portrait" style="width:68px;height:78px;flex:0 0 68px" src="'+p.img+'" alt="Портрет: '+p.name+'"><span><small>ПЕРСОНАЖ №'+(i+1)+'</small><strong style="display:block">'+p.name+'</strong><span>'+p.role+'</span></span></button>').join("");
+  box.innerHTML=suspects.map((p,i)=>'<button type="button" class="record suspect-option" aria-pressed="false" data-suspect="'+p.name+'" style="display:flex;gap:12px;align-items:center;text-align:left;width:100%;cursor:pointer;color:inherit;background:rgba(255,255,255,.025);border:2px solid var(--line,#514b43);transition:background .15s,border-color .15s,opacity .15s" onclick="checkSuspectAnswer(&quot;'+p.name+'&quot;)"><img class="portrait" style="width:68px;height:78px;flex:0 0 68px" src="'+p.img+'" alt="Портрет: '+p.name+'"><span style="flex:1"><small>ПЕРСОНАЖ №'+(i+1)+'</small><strong style="display:block">'+p.name+'</strong><span>'+p.role+'</span><small class="choice-state" style="display:block;margin-top:7px;color:#a9a094">○ НЕ ВЫБРАН</small></span></button>').join("");
   box.dataset.loaded="1";
  }
 }
 function checkSuspectAnswer(name){
  const out=document.getElementById("suspectAnswer");if(!out)return;
+ document.querySelectorAll(".suspect-option").forEach(card=>{
+  const selected=card.dataset.suspect===name;
+  card.setAttribute("aria-pressed",selected?"true":"false");
+  card.style.borderColor=selected?"#d6a85f":"var(--line,#514b43)";
+  card.style.background=selected?"rgba(214,168,95,.16)":"rgba(255,255,255,.025)";
+  card.style.opacity=selected?"1":".62";
+  const state=card.querySelector(".choice-state");
+  if(state){state.textContent=selected?"✓ ВЫБРАНО":"○ НЕ ВЫБРАН";state.style.color=selected?"#e5bd78":"#a9a094";state.style.fontWeight=selected?"800":"400";}
+ });
  if(name==="Максим Рудин"){
-  out.innerHTML='<div class="callout" style="margin-top:14px;border-color:#6b8b68"><h3>Верно!</h3><p>Вы правильно определили убийцу. Максим Рудин — верный ответ.</p></div>';
+  out.innerHTML='<div class="callout" style="margin-top:14px;border-color:#6b8b68"><h3>Верно!</h3><p>Ваш выбор: <b>'+name+'</b>. Вы правильно определили убийцу.</p></div>';
  }else{
-  out.innerHTML='<div class="notice" style="margin-top:14px"><b>Неверно.</b><p>Этот персонаж не является убийцей. Пересмотрите его мотив, показания и сопоставьте их с временной шкалой. Попробуйте ещё раз.</p></div>';
+  out.innerHTML='<div class="notice" style="margin-top:14px"><b>Неверный выбор: '+name+'.</b><p>Выбранная карточка отмечена золотой рамкой. Остальные персонажи затемнены. Вы можете выбрать другого персонажа.</p></div>';
  }
 }
 function revealFinal(){document.getElementById("finalbox").innerHTML='<div class="callout"><h3>Разгадка дела</h3><p>Убийство совершил Максим Рудин. Андрей обнаружил финансовые расхождения в сделке и собирался передать аудитору документы и оригинал договора. Максим встретился с Андреем после телефонного разговора в 22:08. Запись домофона в 21:58 фиксирует открытие двери изнутри, но не устанавливает личность посетителя и не доказывает, что это был Максим. Во время конфликта Максим ударил Андрея бронзовой статуэткой и забрал папку с документами. Открытое окно не подтверждает проникновение с улицы; версия о намеренной инсценировке остаётся предположением.</p><p>Главная связка: Андрей звонил Максиму незадолго до ориентировочного интервала смерти; содержание черновика указывает на конфликт вокруг папки и оригинала; карта Максима использована в баре, но личность плательщика не установлена; скан удалён с общего рабочего устройства MR-2, доступ к которому имели несколько сотрудников; окно не имеет следов проникновения с улицы. Каждый цифровой и временной след требует осторожной интерпретации и не устанавливает личность сам по себе.</p><p>Ни одна улика по отдельности не устанавливает вину. Вывод строится на совокупности показаний, временных отметок, цифровых следов и обстановки места происшествия.</p></div>'}
